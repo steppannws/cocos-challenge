@@ -7,6 +7,6 @@ export const usePortfolio = () => {
   const candidateId = useSessionStore((s) => s.candidateId);
   return useQuery({
     queryKey: queryKeys.portfolio(candidateId),
-    queryFn: ({ signal }) => getPortfolio(signal),
+    queryFn: ({ signal }) => getPortfolio(candidateId, signal),
   });
 };

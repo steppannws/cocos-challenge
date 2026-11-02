@@ -25,6 +25,8 @@ type RequestOptions<T> = {
   body?: unknown;
   schema: z.ZodType<T>;
   signal?: AbortSignal;
+  /** Per-candidate queries pass the id from their query key; otherwise the session's current one. */
+  candidateId?: string;
 };
 
 const TIMEOUT_MS = 15_000;
@@ -44,20 +46,20 @@ const errorMessage = (body: unknown, fallback: string): string =>
     : fallback;
 
 // Headers the challenge API requires on every call (see PRODUCT_BRIEF.md, Backend).
-const headers = (): Record<string, string> => {
-  const { candidateId, bugLevel } = useSessionStore.getState();
+const headers = (candidateId?: string): Record<string, string> => {
+  const session = useSessionStore.getState();
   return {
     Accept: 'application/json',
     'Content-Type': 'application/json',
-    'X-Candidate-Id': candidateId,
-    'X-Enable-Bugs': __DEV__ ? bugLevel : 'off',
+    'X-Candidate-Id': candidateId ?? session.candidateId,
+    'X-Enable-Bugs': __DEV__ ? session.bugLevel : 'off',
   };
 };
 
 /** The only HTTP entry point. Every response is validated with the caller's zod schema. */
 export async function request<T>(
   path: string,
-  { method = 'GET', body, schema, signal }: RequestOptions<T>,
+  { method = 'GET', body, schema, signal, candidateId }: RequestOptions<T>,
 ): Promise<T> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
@@ -68,7 +70,7 @@ export async function request<T>(
   try {
     response = await fetch(`${env.API_URL}${path}`, {
       method,
-      headers: headers(),
+      headers: headers(candidateId),
       body: body === undefined ? undefined : JSON.stringify(body),
       signal: controller.signal,
     });

@@ -3,8 +3,8 @@ import { orderListSchema, orderSchema, type PlaceOrderInput } from '@/schemas/or
 import { fromCents } from '@/utils/money';
 import { request } from './client';
 
-export const getOrders = (signal?: AbortSignal) =>
-  request('/orders', { schema: orderListSchema, signal });
+export const getOrders = (candidateId: string, signal?: AbortSignal) =>
+  request('/orders', { schema: orderListSchema, signal, candidateId });
 
 export const placeOrder = (input: PlaceOrderInput) =>
   request('/orders', {

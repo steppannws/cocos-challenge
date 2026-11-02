@@ -36,6 +36,13 @@ describe('request', () => {
     expect(init?.method).toBe('GET');
   });
 
+  it("sends the query's own candidate id over the store's current one", async () => {
+    // A retry that runs after the user switched accounts must still ask for the old account.
+    respond(200, { ok: true });
+    await request('/orders', { schema, candidateId: 'bob' });
+    expect(fetchMock.mock.calls[0]?.[1]?.headers).toMatchObject({ 'X-Candidate-Id': 'bob' });
+  });
+
   it('serializes a POST body', async () => {
     respond(201, { ok: true });
     await request('/orders', { method: 'POST', body: { quantity: 1 }, schema });
