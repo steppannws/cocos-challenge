@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { maxSharesForAmount, orderTotalCents } from './orders';
+import { hasSettled, maxSharesForAmount, orderTotalCents } from './orders';
 
 describe('maxSharesForAmount', () => {
   it('floors to whole shares', () => {
@@ -17,5 +17,17 @@ describe('maxSharesForAmount', () => {
 describe('orderTotalCents', () => {
   it('multiplies without float drift', () => {
     expect(orderTotalCents(3, 4572)).toBe(13716);
+  });
+});
+
+describe('hasSettled', () => {
+  const pending = { id: '1', status: 'PENDING' } as const;
+  it('is true when a pending order filled or was rejected', () => {
+    expect(hasSettled([pending], [{ id: '1', status: 'FILLED' }])).toBe(true);
+    expect(hasSettled([pending], [{ id: '1', status: 'REJECTED' }])).toBe(true);
+  });
+  it('is false while it is still pending or for new orders', () => {
+    expect(hasSettled([pending], [pending])).toBe(false);
+    expect(hasSettled([], [{ id: '2', status: 'FILLED' }])).toBe(false);
   });
 });
