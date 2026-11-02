@@ -29,11 +29,70 @@
     "noResults": "No results for \"{{query}}\".",
     "openOrder": "Trade {{ticker}}"
   },
+  "order": {
+    "title": "Trade {{ticker}}",
+    "side": "Side",
+    "type": "Order type",
+    "typeHint": {
+      "MARKET": "Executes now at the last price.",
+      "LIMIT": "Stays pending until the market accepts your price."
+    },
+    "mode": {
+      "quantity": "By quantity",
+      "amount": "By amount"
+    },
+    "quantityLabel": "Number of shares",
+    "amountLabel": "Amount in ARS",
+    "priceLabel": "Limit price (ARS)",
+    "lastPrice": "Last price {{price}}",
+    "availableCash": "Available cash {{amount}}",
+    "availableShares_one": "You own {{count}} share",
+    "availableShares_other": "You own {{count}} shares",
+    "maxShares_one": "That amount buys {{count}} share",
+    "maxShares_other": "That amount buys {{count}} shares",
+    "estimatedTotal": "Estimated total",
+    "submit": {
+      "BUY": "Confirm buy",
+      "SELL": "Confirm sell"
+    },
+    "offline": "You need a connection to send an order.",
+    "result": {
+      "title": "Order sent",
+      "id": "ID {{id}}",
+      "FILLED": "Your order was filled.",
+      "PENDING": "Your order is pending in the market.",
+      "REJECTED": "The market rejected the order."
+    },
+    "newOrder": "New order",
+    "done": "Done",
+    "errors": {
+      "quantityInteger": "Enter a whole number greater than 0.",
+      "amountPositive": "Enter an amount greater than 0.",
+      "amountTooSmall": "That amount doesn't buy a single share.",
+      "priceRequired": "Enter a limit price greater than 0.",
+      "insufficientCash": "You don't have enough cash.",
+      "insufficientShares": "You don't have enough shares to sell."
+    }
+  },
   "orders": {
+    "title": "Orders",
+    "empty": "You haven't sent any orders yet.",
+    "emptyHint": "Tap an instrument in Market to trade.",
     "status": {
       "FILLED": "Filled",
       "PENDING": "Pending",
       "REJECTED": "Rejected"
-    }
+    },
+    "side": {
+      "BUY": "Buy",
+      "SELL": "Sell"
+    },
+    "type": {
+      "MARKET": "Market",
+      "LIMIT": "Limit"
+    },
+    "line": "{{side}} · {{type}} · {{quantity}} × {{price}}",
+    "lineNoPrice": "{{side}} · {{type}} · {{quantity}}",
+    "orderId": "#{{id}}"
   }
 }
