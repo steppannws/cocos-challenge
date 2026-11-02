@@ -1,0 +1,11 @@
+dist/
+ios/
+android/
+artifacts/
+.claude/
+node_modules/
+vendor/
+pnpm-lock.yaml
+Gemfile.lock
+# Prose: Prettier would re-pad every Markdown table.
+*.md

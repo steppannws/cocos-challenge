@@ -1,0 +1,6 @@
+# pnpm settings only (this is not a workspace).
+# Flat node_modules: React Native's autolinking, Gradle and CocoaPods expect node_modules/<lib> to be real directories.
+nodeLinker: hoisted
+# @sentry/cli downloads its binary in a postinstall script.
+allowBuilds:
+  '@sentry/cli': true

@@ -1,0 +1,23 @@
+{
+  "extends": "@react-native/typescript-config",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "types": ["react-native"],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": [
+    "src",
+    "tests",
+    "App.tsx",
+    "index.js",
+    "babel.config.js",
+    "metro.config.js",
+    "eslint.config.js",
+    "vitest.config.mts"
+  ],
+  "exclude": ["node_modules", "ios", "android", "artifacts"]
+}

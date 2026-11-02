@@ -1,0 +1,8 @@
+# Default gitleaks rules, minus Podfile.lock: it only holds pod checksums (SHA-1), which the
+# generic-api-key rule flags as secrets.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "CocoaPods checksums"
+paths = ['''^ios/Podfile\.lock$''']
