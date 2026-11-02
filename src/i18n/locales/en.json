@@ -107,5 +107,18 @@
     "line": "{{side}} · {{type}} · {{quantity}} × {{price}}",
     "lineNoPrice": "{{side}} · {{type}} · {{quantity}}",
     "orderId": "#{{id}}"
+  },
+  "account": {
+    "title": "Account",
+    "candidateId": "Candidate ID",
+    "candidateIdHint": "The API isolates your portfolio and orders by this identifier.",
+    "candidateIdRequired": "Enter an identifier.",
+    "saved": "Saved",
+    "devTools": "Developer tools",
+    "bugLevel": "API bug level (X-Enable-Bugs)",
+    "reset": "Reset account",
+    "resetHint": "Deletes your orders and holdings. Back to 1,000,000 ARS.",
+    "resetDone": "Account reset.",
+    "about": "Cocos Challenge · React Native {{version}}"
   }
 }

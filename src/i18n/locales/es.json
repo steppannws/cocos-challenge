@@ -107,5 +107,18 @@
     "line": "{{side}} · {{type}} · {{quantity}} × {{price}}",
     "lineNoPrice": "{{side}} · {{type}} · {{quantity}}",
     "orderId": "#{{id}}"
+  },
+  "account": {
+    "title": "Cuenta",
+    "candidateId": "Candidate ID",
+    "candidateIdHint": "La API aísla tu portfolio y tus órdenes por este identificador.",
+    "candidateIdRequired": "Ingresá un identificador.",
+    "saved": "Guardado",
+    "devTools": "Herramientas de desarrollo",
+    "bugLevel": "Nivel de bugs de la API (X-Enable-Bugs)",
+    "reset": "Reiniciar cuenta",
+    "resetHint": "Borra tus órdenes y tenencias. Volvés a 1.000.000 ARS.",
+    "resetDone": "Cuenta reiniciada.",
+    "about": "Cocos Challenge · React Native {{version}}"
   }
 }
