@@ -1,5 +1,31 @@
 {
   "app": {
     "name": "Cocos Challenge"
+  },
+  "common": {
+    "retry": "Reintentar",
+    "loading": "Cargando…",
+    "close": "Cerrar",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "offline": "Sin conexión. Mostrás datos guardados.",
+    "errorTitle": "No pudimos cargar los datos",
+    "crashTitle": "Algo salió mal",
+    "crashBody": "La app encontró un error inesperado. Podés volver a intentarlo.",
+    "updatedAt": "Actualizado {{time}}"
+  },
+  "errors": {
+    "network": "No hay conexión con el servidor.",
+    "timeout": "El servidor tardó demasiado en responder.",
+    "shape": "El servidor devolvió una respuesta inesperada.",
+    "http": "Error del servidor ({{status}}): {{message}}",
+    "unknown": "Ocurrió un error inesperado."
+  },
+  "orders": {
+    "status": {
+      "FILLED": "Ejecutada",
+      "PENDING": "Pendiente",
+      "REJECTED": "Rechazada"
+    }
   }
 }
