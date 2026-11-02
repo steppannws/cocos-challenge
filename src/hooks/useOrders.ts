@@ -15,7 +15,7 @@ export const useOrders = () => {
     queryKey,
     queryFn: async ({ signal }) => {
       const previous = queryClient.getQueryData<Order[]>(queryKey);
-      const orders = await getOrders(signal);
+      const orders = await getOrders(candidateId, signal);
       // A settled LIMIT order moved cash and shares server-side: the cached portfolio is now wrong.
       if (previous && hasSettled(previous, orders)) {
         void queryClient.invalidateQueries({ queryKey: queryKeys.portfolio(candidateId) });
