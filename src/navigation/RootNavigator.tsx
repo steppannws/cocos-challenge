@@ -1,0 +1,101 @@
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { DefaultTheme, NavigationContainer, type Theme } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useTranslation } from 'react-i18next';
+import { Icon } from '@/components/Icon';
+import { AccountScreen } from '@/screens/AccountScreen';
+import { MarketScreen } from '@/screens/MarketScreen';
+import { OrderSheetScreen } from '@/screens/OrderSheetScreen';
+import { OrdersScreen } from '@/screens/OrdersScreen';
+import { PortfolioScreen } from '@/screens/PortfolioScreen';
+import { colors } from '@/theme';
+import { styles } from './styles';
+import type { RootStackParamList, TabParamList } from './types';
+
+const Tab = createBottomTabNavigator<TabParamList>();
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
+const theme: Theme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: colors.primary,
+    background: colors.background,
+    card: colors.background,
+    text: colors.text,
+    border: colors.border,
+  },
+};
+
+type TabIconProps = { color: string; size: number };
+const MarketIcon = (props: TabIconProps) => <Icon name="market" {...props} />;
+const PortfolioIcon = (props: TabIconProps) => <Icon name="portfolio" {...props} />;
+const OrdersIcon = (props: TabIconProps) => <Icon name="orders" {...props} />;
+const AccountIcon = (props: TabIconProps) => <Icon name="account" {...props} />;
+
+function Tabs() {
+  const { t } = useTranslation();
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textMuted,
+        tabBarStyle: styles.tabBar,
+        tabBarLabelStyle: styles.tabLabel,
+      }}
+    >
+      <Tab.Screen
+        name="Market"
+        component={MarketScreen}
+        options={{
+          title: t('tabs.market'),
+          tabBarIcon: MarketIcon,
+          tabBarButtonTestID: 'tab-market',
+        }}
+      />
+      <Tab.Screen
+        name="Portfolio"
+        component={PortfolioScreen}
+        options={{
+          title: t('tabs.portfolio'),
+          tabBarIcon: PortfolioIcon,
+          tabBarButtonTestID: 'tab-portfolio',
+        }}
+      />
+      <Tab.Screen
+        name="Orders"
+        component={OrdersScreen}
+        options={{
+          title: t('tabs.orders'),
+          tabBarIcon: OrdersIcon,
+          tabBarButtonTestID: 'tab-orders',
+        }}
+      />
+      <Tab.Screen
+        name="Account"
+        component={AccountScreen}
+        options={{
+          title: t('tabs.account'),
+          tabBarIcon: AccountIcon,
+          tabBarButtonTestID: 'tab-account',
+        }}
+      />
+    </Tab.Navigator>
+  );
+}
+
+export function RootNavigator() {
+  return (
+    <NavigationContainer theme={theme}>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Tabs" component={Tabs} />
+        <Stack.Screen
+          name="OrderSheet"
+          component={OrderSheetScreen}
+          options={{ presentation: 'modal' }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}

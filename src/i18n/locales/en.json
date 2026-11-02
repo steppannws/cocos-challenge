@@ -1,6 +1,10 @@
 {
-  "app": {
-    "name": "Cocos Challenge"
+  "app": { "name": "Cocos Challenge" },
+  "tabs": {
+    "market": "Market",
+    "portfolio": "Portfolio",
+    "orders": "Orders",
+    "account": "Account"
   },
   "common": {
     "retry": "Retry",
@@ -42,6 +46,17 @@
     "shares_other": "{{count}} shares",
     "position": "{{shares}} @ {{price}}"
   },
+  "orders": {
+    "title": "Orders",
+    "empty": "You haven't sent any orders yet.",
+    "emptyHint": "Tap an instrument in Market to trade.",
+    "status": { "FILLED": "Filled", "PENDING": "Pending", "REJECTED": "Rejected" },
+    "side": { "BUY": "Buy", "SELL": "Sell" },
+    "type": { "MARKET": "Market", "LIMIT": "Limit" },
+    "line": "{{side}} · {{type}} · {{quantity}} × {{price}}",
+    "lineNoPrice": "{{side}} · {{type}} · {{quantity}}",
+    "orderId": "#{{id}}"
+  },
   "order": {
     "title": "Trade {{ticker}}",
     "side": "Side",
@@ -50,10 +65,7 @@
       "MARKET": "Executes now at the last price.",
       "LIMIT": "Stays pending until the market accepts your price."
     },
-    "mode": {
-      "quantity": "By quantity",
-      "amount": "By amount"
-    },
+    "mode": { "quantity": "By quantity", "amount": "By amount" },
     "quantityLabel": "Number of shares",
     "amountLabel": "Amount in ARS",
     "priceLabel": "Limit price (ARS)",
@@ -64,10 +76,7 @@
     "maxShares_one": "That amount buys {{count}} share",
     "maxShares_other": "That amount buys {{count}} shares",
     "estimatedTotal": "Estimated total",
-    "submit": {
-      "BUY": "Confirm buy",
-      "SELL": "Confirm sell"
-    },
+    "submit": { "BUY": "Confirm buy", "SELL": "Confirm sell" },
     "offline": "You need a connection to send an order.",
     "result": {
       "title": "Order sent",
@@ -86,27 +95,6 @@
       "insufficientCash": "You don't have enough cash.",
       "insufficientShares": "You don't have enough shares to sell."
     }
-  },
-  "orders": {
-    "title": "Orders",
-    "empty": "You haven't sent any orders yet.",
-    "emptyHint": "Tap an instrument in Market to trade.",
-    "status": {
-      "FILLED": "Filled",
-      "PENDING": "Pending",
-      "REJECTED": "Rejected"
-    },
-    "side": {
-      "BUY": "Buy",
-      "SELL": "Sell"
-    },
-    "type": {
-      "MARKET": "Market",
-      "LIMIT": "Limit"
-    },
-    "line": "{{side}} · {{type}} · {{quantity}} × {{price}}",
-    "lineNoPrice": "{{side}} · {{type}} · {{quantity}}",
-    "orderId": "#{{id}}"
   },
   "account": {
     "title": "Account",

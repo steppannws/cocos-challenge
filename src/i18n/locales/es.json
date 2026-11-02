@@ -1,6 +1,10 @@
 {
-  "app": {
-    "name": "Cocos Challenge"
+  "app": { "name": "Cocos Challenge" },
+  "tabs": {
+    "market": "Mercado",
+    "portfolio": "Portfolio",
+    "orders": "Órdenes",
+    "account": "Cuenta"
   },
   "common": {
     "retry": "Reintentar",
@@ -42,6 +46,17 @@
     "shares_other": "{{count}} acciones",
     "position": "{{shares}} @ {{price}}"
   },
+  "orders": {
+    "title": "Órdenes",
+    "empty": "Todavía no enviaste órdenes.",
+    "emptyHint": "Tocá un instrumento en Mercado para operar.",
+    "status": { "FILLED": "Ejecutada", "PENDING": "Pendiente", "REJECTED": "Rechazada" },
+    "side": { "BUY": "Compra", "SELL": "Venta" },
+    "type": { "MARKET": "Mercado", "LIMIT": "Límite" },
+    "line": "{{side}} · {{type}} · {{quantity}} × {{price}}",
+    "lineNoPrice": "{{side}} · {{type}} · {{quantity}}",
+    "orderId": "#{{id}}"
+  },
   "order": {
     "title": "Operar {{ticker}}",
     "side": "Operación",
@@ -50,10 +65,7 @@
       "MARKET": "Se ejecuta ahora al último precio.",
       "LIMIT": "Queda pendiente hasta que el mercado la acepte a tu precio."
     },
-    "mode": {
-      "quantity": "Por cantidad",
-      "amount": "Por monto"
-    },
+    "mode": { "quantity": "Por cantidad", "amount": "Por monto" },
     "quantityLabel": "Cantidad de acciones",
     "amountLabel": "Monto en ARS",
     "priceLabel": "Precio límite (ARS)",
@@ -64,10 +76,7 @@
     "maxShares_one": "Con ese monto comprás {{count}} acción",
     "maxShares_other": "Con ese monto comprás {{count}} acciones",
     "estimatedTotal": "Total estimado",
-    "submit": {
-      "BUY": "Confirmar compra",
-      "SELL": "Confirmar venta"
-    },
+    "submit": { "BUY": "Confirmar compra", "SELL": "Confirmar venta" },
     "offline": "Necesitás conexión para enviar una orden.",
     "result": {
       "title": "Orden enviada",
@@ -86,27 +95,6 @@
       "insufficientCash": "No tenés efectivo suficiente.",
       "insufficientShares": "No tenés suficientes acciones para vender."
     }
-  },
-  "orders": {
-    "title": "Órdenes",
-    "empty": "Todavía no enviaste órdenes.",
-    "emptyHint": "Tocá un instrumento en Mercado para operar.",
-    "status": {
-      "FILLED": "Ejecutada",
-      "PENDING": "Pendiente",
-      "REJECTED": "Rechazada"
-    },
-    "side": {
-      "BUY": "Compra",
-      "SELL": "Venta"
-    },
-    "type": {
-      "MARKET": "Mercado",
-      "LIMIT": "Límite"
-    },
-    "line": "{{side}} · {{type}} · {{quantity}} × {{price}}",
-    "lineNoPrice": "{{side}} · {{type}} · {{quantity}}",
-    "orderId": "#{{id}}"
   },
   "account": {
     "title": "Cuenta",
