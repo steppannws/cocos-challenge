@@ -1,15 +1,27 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getOrders, placeOrder, resetAccount } from '@/api/ordersApi';
 import { queryKeys } from '@/api/queryKeys';
+import type { Order } from '@/schemas/order';
 import { useSessionStore } from '@/store/session';
+import { hasSettled } from '@/utils/orders';
 
 const PENDING_POLL_MS = 15_000;
 
 export const useOrders = () => {
+  const queryClient = useQueryClient();
   const candidateId = useSessionStore((s) => s.candidateId);
+  const queryKey = queryKeys.orders(candidateId);
   return useQuery({
-    queryKey: queryKeys.orders(candidateId),
-    queryFn: ({ signal }) => getOrders(signal),
+    queryKey,
+    queryFn: async ({ signal }) => {
+      const previous = queryClient.getQueryData<Order[]>(queryKey);
+      const orders = await getOrders(signal);
+      // A settled LIMIT order moved cash and shares server-side: the cached portfolio is now wrong.
+      if (previous && hasSettled(previous, orders)) {
+        void queryClient.invalidateQueries({ queryKey: queryKeys.portfolio(candidateId) });
+      }
+      return orders;
+    },
     // LIMIT orders resolve server-side at random; poll only while one is still PENDING.
     refetchInterval: (query) =>
       query.state.data?.some((order) => order.status === 'PENDING') ? PENDING_POLL_MS : false,
