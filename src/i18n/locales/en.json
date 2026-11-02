@@ -2,6 +2,25 @@
   "app": {
     "name": "Cocos Challenge"
   },
+  "common": {
+    "retry": "Retry",
+    "loading": "Loading…",
+    "close": "Close",
+    "cancel": "Cancel",
+    "save": "Save",
+    "offline": "You're offline. Showing saved data.",
+    "errorTitle": "We couldn't load the data",
+    "crashTitle": "Something went wrong",
+    "crashBody": "The app hit an unexpected error. You can try again.",
+    "updatedAt": "Updated {{time}}"
+  },
+  "errors": {
+    "network": "Can't reach the server.",
+    "timeout": "The server took too long to respond.",
+    "shape": "The server returned an unexpected response.",
+    "http": "Server error ({{status}}): {{message}}",
+    "unknown": "An unexpected error occurred."
+  },
   "orders": {
     "status": {
       "FILLED": "Filled",
