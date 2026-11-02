@@ -23,6 +23,14 @@ describe('parseDecimal', () => {
     expect(parseDecimal('1,234.56')).toBe(1234.56);
     expect(parseDecimal(' 100 ')).toBe(100);
   });
+  it('reads one separator followed by groups of three digits as thousands', () => {
+    // es-AR writes 1500 pesos as "1.500"; read as a decimal it became a 1,50 limit price.
+    expect(parseDecimal('1.500')).toBe(1500);
+    expect(parseDecimal('10.000.000')).toBe(10000000);
+    expect(parseDecimal('1,500')).toBe(1500);
+    expect(parseDecimal('0.500')).toBe(0.5);
+    expect(parseDecimal('84.50')).toBe(84.5);
+  });
   it('rejects garbage', () => {
     expect(parseDecimal('')).toBeNaN();
     expect(parseDecimal('abc')).toBeNaN();

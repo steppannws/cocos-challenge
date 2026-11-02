@@ -52,11 +52,16 @@ export const initialOrderValues = (side: OrderSide): OrderFormValues => ({
   price: '',
 });
 
-/** Accepts "84,5", "84.5" and "1.234,56". Anything else is NaN. */
+/** Accepts "84,5", "84.5", "1.500" and "1.234,56". Anything else is NaN. */
 export const parseDecimal = (input: string): number => {
   const raw = input.replace(/\s/g, '');
   if (raw === '') {
     return Number.NaN;
+  }
+  // A single kind of separator before groups of exactly three digits ("1.500", "10,000") groups
+  // thousands: ARS prices have two decimals, and es-AR users write 1500 as "1.500".
+  if (/^[1-9]\d{0,2}(\.\d{3})+$/.test(raw) || /^[1-9]\d{0,2}(,\d{3})+$/.test(raw)) {
+    return Number(raw.replace(/[.,]/g, ''));
   }
   const lastComma = raw.lastIndexOf(',');
   const lastDot = raw.lastIndexOf('.');
