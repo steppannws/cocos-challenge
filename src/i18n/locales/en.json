@@ -21,6 +21,14 @@
     "http": "Server error ({{status}}): {{message}}",
     "unknown": "An unexpected error occurred."
   },
+  "market": {
+    "title": "Market",
+    "searchPlaceholder": "Search by ticker",
+    "clearSearch": "Clear search",
+    "empty": "No instruments to show.",
+    "noResults": "No results for \"{{query}}\".",
+    "openOrder": "Trade {{ticker}}"
+  },
   "orders": {
     "status": {
       "FILLED": "Filled",

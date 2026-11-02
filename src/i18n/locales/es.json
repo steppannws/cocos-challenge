@@ -21,6 +21,14 @@
     "http": "Error del servidor ({{status}}): {{message}}",
     "unknown": "Ocurrió un error inesperado."
   },
+  "market": {
+    "title": "Mercado",
+    "searchPlaceholder": "Buscar por ticker",
+    "clearSearch": "Borrar búsqueda",
+    "empty": "No hay instrumentos para mostrar.",
+    "noResults": "No encontramos \"{{query}}\".",
+    "openOrder": "Operar {{ticker}}"
+  },
   "orders": {
     "status": {
       "FILLED": "Ejecutada",
