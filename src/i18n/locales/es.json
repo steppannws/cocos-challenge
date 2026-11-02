@@ -29,6 +29,19 @@
     "noResults": "No encontramos \"{{query}}\".",
     "openOrder": "Operar {{ticker}}"
   },
+  "portfolio": {
+    "title": "Portfolio",
+    "totalValue": "Valor total",
+    "cash": "Efectivo disponible",
+    "invested": "Invertido",
+    "pnl": "Resultado",
+    "holdings": "Tenencias",
+    "empty": "Todavía no tenés posiciones.",
+    "emptyHint": "Comprá un instrumento desde Mercado.",
+    "shares_one": "{{count}} acción",
+    "shares_other": "{{count}} acciones",
+    "position": "{{shares}} @ {{price}}"
+  },
   "order": {
     "title": "Operar {{ticker}}",
     "side": "Operación",

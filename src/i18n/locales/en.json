@@ -29,6 +29,19 @@
     "noResults": "No results for \"{{query}}\".",
     "openOrder": "Trade {{ticker}}"
   },
+  "portfolio": {
+    "title": "Portfolio",
+    "totalValue": "Total value",
+    "cash": "Available cash",
+    "invested": "Invested",
+    "pnl": "Total return",
+    "holdings": "Holdings",
+    "empty": "You don't have any positions yet.",
+    "emptyHint": "Buy an instrument from the Market tab.",
+    "shares_one": "{{count}} share",
+    "shares_other": "{{count}} shares",
+    "position": "{{shares}} @ {{price}}"
+  },
   "order": {
     "title": "Trade {{ticker}}",
     "side": "Side",
