@@ -1,0 +1,42 @@
+# LIMIT by amount: sizing hint, SELL without shares → validation error, then a LIMIT BUY (PENDING).
+appId: ${APP_ID}
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: 'instrument-row-CAPX'
+    timeout: 120000
+- tapOn:
+    id: 'instrument-row-CAPX'
+- extendedWaitUntil:
+    visible:
+      id: 'order-sheet'
+    timeout: 15000
+- tapOn:
+    id: 'order-type-LIMIT'
+- tapOn:
+    id: 'order-price'
+- inputText: '40'
+- tapOn:
+    id: 'order-mode-amount'
+- tapOn:
+    id: 'order-amount'
+- inputText: '1000'
+- tapOn:
+    id: 'order-title'
+- takeScreenshot: limit-buy-form
+- tapOn:
+    id: 'order-side-SELL'
+- assertVisible:
+    id: 'order-form-error'
+- takeScreenshot: limit-sell-error
+- tapOn:
+    id: 'order-side-BUY'
+- tapOn:
+    id: 'order-submit'
+- extendedWaitUntil:
+    visible:
+      id: 'order-result'
+    timeout: 30000
+- takeScreenshot: limit-result

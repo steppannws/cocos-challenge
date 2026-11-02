@@ -1,6 +1,10 @@
 {
-  "app": {
-    "name": "Cocos Challenge"
+  "app": { "name": "Cocos Challenge" },
+  "tabs": {
+    "market": "Mercado",
+    "portfolio": "Portfolio",
+    "orders": "Órdenes",
+    "account": "Cuenta"
   },
   "common": {
     "retry": "Reintentar",
@@ -21,11 +25,88 @@
     "http": "Error del servidor ({{status}}): {{message}}",
     "unknown": "Ocurrió un error inesperado."
   },
+  "market": {
+    "title": "Mercado",
+    "searchPlaceholder": "Buscar por ticker",
+    "clearSearch": "Borrar búsqueda",
+    "empty": "No hay instrumentos para mostrar.",
+    "noResults": "No encontramos \"{{query}}\".",
+    "openOrder": "Operar {{ticker}}"
+  },
+  "portfolio": {
+    "title": "Portfolio",
+    "totalValue": "Valor total",
+    "cash": "Efectivo disponible",
+    "invested": "Invertido",
+    "pnl": "Resultado",
+    "holdings": "Tenencias",
+    "empty": "Todavía no tenés posiciones.",
+    "emptyHint": "Comprá un instrumento desde Mercado.",
+    "shares_one": "{{count}} acción",
+    "shares_other": "{{count}} acciones",
+    "position": "{{shares}} @ {{price}}"
+  },
   "orders": {
-    "status": {
-      "FILLED": "Ejecutada",
-      "PENDING": "Pendiente",
-      "REJECTED": "Rechazada"
+    "title": "Órdenes",
+    "empty": "Todavía no enviaste órdenes.",
+    "emptyHint": "Tocá un instrumento en Mercado para operar.",
+    "status": { "FILLED": "Ejecutada", "PENDING": "Pendiente", "REJECTED": "Rechazada" },
+    "side": { "BUY": "Compra", "SELL": "Venta" },
+    "type": { "MARKET": "Mercado", "LIMIT": "Límite" },
+    "line": "{{side}} · {{type}} · {{quantity}} × {{price}}",
+    "lineNoPrice": "{{side}} · {{type}} · {{quantity}}",
+    "orderId": "#{{id}}"
+  },
+  "order": {
+    "title": "Operar {{ticker}}",
+    "side": "Operación",
+    "type": "Tipo de orden",
+    "typeHint": {
+      "MARKET": "Se ejecuta ahora al último precio.",
+      "LIMIT": "Queda pendiente hasta que el mercado la acepte a tu precio."
+    },
+    "mode": { "quantity": "Por cantidad", "amount": "Por monto" },
+    "quantityLabel": "Cantidad de acciones",
+    "amountLabel": "Monto en ARS",
+    "priceLabel": "Precio límite (ARS)",
+    "lastPrice": "Último precio {{price}}",
+    "availableCash": "Efectivo disponible {{amount}}",
+    "availableShares_one": "Tenés {{count}} acción",
+    "availableShares_other": "Tenés {{count}} acciones",
+    "maxShares_one": "Con ese monto comprás {{count}} acción",
+    "maxShares_other": "Con ese monto comprás {{count}} acciones",
+    "estimatedTotal": "Total estimado",
+    "submit": { "BUY": "Confirmar compra", "SELL": "Confirmar venta" },
+    "offline": "Necesitás conexión para enviar una orden.",
+    "result": {
+      "title": "Orden enviada",
+      "id": "ID {{id}}",
+      "FILLED": "Tu orden se ejecutó.",
+      "PENDING": "Tu orden quedó pendiente en el mercado.",
+      "REJECTED": "El mercado rechazó la orden."
+    },
+    "newOrder": "Nueva orden",
+    "done": "Listo",
+    "errors": {
+      "quantityInteger": "Ingresá una cantidad entera mayor a 0.",
+      "amountPositive": "Ingresá un monto mayor a 0.",
+      "amountTooSmall": "El monto no alcanza para una acción.",
+      "priceRequired": "Ingresá un precio límite mayor a 0.",
+      "insufficientCash": "No tenés efectivo suficiente.",
+      "insufficientShares": "No tenés suficientes acciones para vender."
     }
+  },
+  "account": {
+    "title": "Cuenta",
+    "candidateId": "Candidate ID",
+    "candidateIdHint": "La API aísla tu portfolio y tus órdenes por este identificador.",
+    "candidateIdRequired": "Ingresá un identificador.",
+    "saved": "Guardado",
+    "devTools": "Herramientas de desarrollo",
+    "bugLevel": "Nivel de bugs de la API (X-Enable-Bugs)",
+    "reset": "Reiniciar cuenta",
+    "resetHint": "Borra tus órdenes y tenencias. Volvés a 1.000.000 ARS.",
+    "resetDone": "Cuenta reiniciada.",
+    "about": "Cocos Challenge · React Native {{version}}"
   }
 }
