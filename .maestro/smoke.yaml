@@ -1,0 +1,11 @@
+# Smoke flow: the debug build opens, loads the bundle from Metro and renders the Market tab.
+# scripts/run-app.sh passes APP_ID.
+appId: ${APP_ID}
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: 'market-screen'
+    timeout: 120000
+- takeScreenshot: market
