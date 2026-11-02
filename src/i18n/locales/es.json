@@ -1,5 +1,12 @@
 {
   "app": {
     "name": "Cocos Challenge"
+  },
+  "orders": {
+    "status": {
+      "FILLED": "Ejecutada",
+      "PENDING": "Pendiente",
+      "REJECTED": "Rechazada"
+    }
   }
 }
