@@ -21,7 +21,8 @@ export type OrderFormContext = {
 };
 
 export type OrderFormErrorKey =
-  | 'quantityInteger'
+  | 'quantityPositive'
+  | 'quantityFractional'
   | 'amountPositive'
   | 'amountTooSmall'
   | 'priceRequired'
@@ -101,7 +102,8 @@ export function deriveOrder(values: OrderFormValues, ctx: OrderFormContext): Der
     if (Number.isFinite(typed) && typed > 0) {
       quantity = typed;
     } else {
-      errors.quantity = 'quantityInteger';
+      // Spec: no fractional shares. "10.2" or "10,2" gets its own message, not "greater than 0".
+      errors.quantity = /[.,]/.test(values.quantity) ? 'quantityFractional' : 'quantityPositive';
     }
   } else {
     const amount = parseDecimal(values.amount);

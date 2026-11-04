@@ -88,7 +88,8 @@
     "newOrder": "Nueva orden",
     "done": "Listo",
     "errors": {
-      "quantityInteger": "Ingresá una cantidad entera mayor a 0.",
+      "quantityPositive": "Ingresá una cantidad mayor a 0.",
+      "quantityFractional": "No se permiten fracciones de acciones. Ingresá un número entero.",
       "amountPositive": "Ingresá un monto mayor a 0.",
       "amountTooSmall": "El monto no alcanza para una acción.",
       "priceRequired": "Ingresá un precio límite mayor a 0.",

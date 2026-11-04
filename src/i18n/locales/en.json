@@ -88,7 +88,8 @@
     "newOrder": "New order",
     "done": "Done",
     "errors": {
-      "quantityInteger": "Enter a whole number greater than 0.",
+      "quantityPositive": "Enter a quantity greater than 0.",
+      "quantityFractional": "Fractional shares aren't allowed. Enter a whole number.",
       "amountPositive": "Enter an amount greater than 0.",
       "amountTooSmall": "That amount doesn't buy a single share.",
       "priceRequired": "Enter a limit price greater than 0.",
