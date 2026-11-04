@@ -2,28 +2,37 @@ import type { Cents } from './money';
 
 export type Locale = 'es-AR' | 'en-US';
 
-const currency = new Map<Locale, Intl.NumberFormat>();
-const number = new Map<Locale, Intl.NumberFormat>();
+const numberOptions = {
+  money: { style: 'currency', currency: 'ARS', minimumFractionDigits: 2, maximumFractionDigits: 2 },
+  percent: { minimumFractionDigits: 2, maximumFractionDigits: 2 },
+  quantity: { maximumFractionDigits: 0 },
+} satisfies Record<string, Intl.NumberFormatOptions>;
 
-const currencyFormatter = (locale: Locale): Intl.NumberFormat => {
-  let f = currency.get(locale);
+// Building an Intl formatter is slow on Hermes and these run in every list row: build once.
+const numberFormats = new Map<string, Intl.NumberFormat>();
+const numberFormat = (locale: Locale, kind: keyof typeof numberOptions): Intl.NumberFormat => {
+  const key = `${locale}:${kind}`;
+  let f = numberFormats.get(key);
   if (!f) {
-    f = new Intl.NumberFormat(locale, {
-      style: 'currency',
-      currency: 'ARS',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
-    currency.set(locale, f);
+    f = new Intl.NumberFormat(locale, numberOptions[kind]);
+    numberFormats.set(key, f);
   }
   return f;
 };
 
-const numberFormatter = (locale: Locale): Intl.NumberFormat => {
-  let f = number.get(locale);
+const dateFormats = new Map<Locale, Intl.DateTimeFormat>();
+const dateFormat = (locale: Locale): Intl.DateTimeFormat => {
+  let f = dateFormats.get(locale);
   if (!f) {
-    f = new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    number.set(locale, f);
+    // Explicit parts instead of dateStyle, which Hermes does not support everywhere.
+    f = new Intl.DateTimeFormat(locale, {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    dateFormats.set(locale, f);
   }
   return f;
 };
@@ -31,15 +40,16 @@ const numberFormatter = (locale: Locale): Intl.NumberFormat => {
 type SignOptions = { signed?: boolean };
 
 // Sign is added by hand: Hermes on Android does not support Intl signDisplay on every OS version.
+// A negative value always keeps its minus; `signed` only adds the plus.
 const withSign = (text: string, value: number, signed: boolean): string => {
-  if (!signed || value === 0) {
-    return text;
+  if (value < 0) {
+    return `−${text}`;
   }
-  return value > 0 ? `+${text}` : `−${text}`;
+  return signed && value > 0 ? `+${text}` : text;
 };
 
 export const formatMoney = (cents: Cents, locale: Locale, { signed = false }: SignOptions = {}) =>
-  withSign(currencyFormatter(locale).format(Math.abs(cents) / 100), cents, signed);
+  withSign(numberFormat(locale, 'money').format(Math.abs(cents) / 100), cents, signed);
 
 /** `ratio` is a fraction (0.0125 = 1.25 %). `null` renders as a dash (no close price). */
 export const formatPercent = (
@@ -50,23 +60,18 @@ export const formatPercent = (
   if (ratio === null || !Number.isFinite(ratio)) {
     return '—';
   }
-  return withSign(`${numberFormatter(locale).format(Math.abs(ratio) * 100)} %`, ratio, signed);
+  return withSign(
+    `${numberFormat(locale, 'percent').format(Math.abs(ratio) * 100)} %`,
+    ratio,
+    signed,
+  );
 };
 
 export const formatQuantity = (quantity: number, locale: Locale) =>
-  new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(quantity);
+  numberFormat(locale, 'quantity').format(quantity);
 
-// ISO 8601 from the API; explicit parts instead of dateStyle, which Hermes does not support everywhere.
+// ISO 8601 from the API.
 export const formatDateTime = (iso: string, locale: Locale): string => {
   const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) {
-    return '—';
-  }
-  return new Intl.DateTimeFormat(locale, {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(date);
+  return Number.isNaN(date.getTime()) ? '—' : dateFormat(locale).format(date);
 };

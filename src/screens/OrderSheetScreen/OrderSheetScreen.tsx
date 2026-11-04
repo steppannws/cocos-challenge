@@ -2,6 +2,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
+import { ApiError } from '@/api/client';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { ErrorState } from '@/components/ErrorState';
@@ -224,7 +225,21 @@ export function OrderSheetScreen({ route, navigation }: Props) {
               </Card>
 
               {placeOrder.isError ? (
-                <ErrorState error={placeOrder.error} testID="order-error" />
+                // No idempotency key: after a timeout or dropped connection the server may have
+                // the order, so warn before the user sends it twice.
+                placeOrder.error instanceof ApiError &&
+                (placeOrder.error.kind === 'timeout' || placeOrder.error.kind === 'network') ? (
+                  <Text
+                    variant="caption"
+                    color="warning"
+                    style={styles.resultText}
+                    testID="order-error"
+                  >
+                    {t('order.maybeSent')}
+                  </Text>
+                ) : (
+                  <ErrorState error={placeOrder.error} testID="order-error" />
+                )
               ) : null}
 
               <View style={styles.footer}>
