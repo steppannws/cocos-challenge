@@ -1,6 +1,6 @@
 # Cocos Challenge
 
-A retail broker app for the Cocos Capital React Native challenge: browse instruments, search by ticker, see the portfolio and send BUY/SELL orders against the challenge's dummy API. Second attempt; the first one (SierraVest, 2024) got this feedback: good UI/UX, but component organization, missing derived state and a generic README held it back.
+A retail broker app for the Cocos Capital React Native challenge: browse instruments, search by ticker, see the portfolio and send BUY/SELL orders against the challenge's dummy API.
 
 ## Users and main jobs
 
@@ -27,7 +27,7 @@ Derived, never stored: daily return %, market value, P&L (ARS and %), portfolio 
 
 ## Platform
 
-- Shape: single app, **bare React Native** (`@react-native-community/cli`), no Expo. The kit's Expo-specific parts (Expo Router, expo-* modules, CNG, `run-app.sh`, `verify.sh --full`) are replaced by their bare equivalents.
+- Shape: single app, **bare React Native** (`@react-native-community/cli`), no Expo.
 - Bundle id / package: `com.stepan.cocoschallenge`
 - Languages: es (default), en
 - Devices: phones only

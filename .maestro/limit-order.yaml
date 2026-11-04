@@ -1,8 +1,16 @@
 # LIMIT by amount: sizing hint, SELL without shares → validation error, then a LIMIT BUY (PENDING).
+# Needs a candidate with no CAPX shares: the SELL step expects the "not enough shares" error. Reset the account first if needed.
 appId: ${APP_ID}
 ---
 - launchApp:
     clearState: true
+# Portfolio is the first tab: the app opens there.
+- extendedWaitUntil:
+    visible:
+      id: 'portfolio-screen'
+    timeout: 120000
+- tapOn:
+    id: 'tab-market'
 - extendedWaitUntil:
     visible:
       id: 'instrument-row-CAPX'

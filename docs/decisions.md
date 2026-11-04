@@ -1,49 +1,50 @@
 # Decisions
 
-One line per choice: what and why. Update this file when you add or replace a library. No version numbers: `package.json` has them.
+One line for each choice: what and why. Update this file when you add or replace a library. This file has no version numbers. `package.json` has them.
 
 ## Platform
 
 | Choice | Why |
 |---|---|
-| Bare React Native (community CLI), no Expo | Product decision for this challenge: show the native projects, CocoaPods and Gradle wiring directly. The spec "values" Expo but does not require it; the kit this app started from is Expo-first, so `scripts/run-app.sh` and `verify.sh --full` were rewritten for the bare toolchain. |
-| New Architecture + Hermes (template defaults) | Current defaults; every dependency here supports them. |
-| pnpm with `nodeLinker: hoisted` | Autolinking, Gradle and CocoaPods expect `node_modules/<lib>` to be real directories. Isolated (symlinked) `node_modules` is not worth the risk for one app. Setting lives in `pnpm-workspace.yaml`: pnpm 11 ignores `.npmrc` for its own options. |
-| `react-native-config` for build-time env | One `.env` per environment (`ENVFILE=...`), read natively on both platforms, validated once with zod in `src/config/env.ts`. `.env` is committed: it holds public values only. |
-| Sentry (`@sentry/react-native`), no-op without a DSN | Initialized before the first render so startup crashes are captured. With an empty `SENTRY_DSN` nothing is sent and `Sentry.wrap` is skipped (it warns on every start otherwise). |
+| Bare React Native (community CLI), no Expo | A product decision for this challenge: the repo shows the native projects and the CocoaPods and Gradle setup directly. The challenge prefers Expo but does not require it. `scripts/run-app.sh` and `verify.sh --full` use the bare toolchain (Xcode, Gradle, Metro). |
+| New Architecture and Hermes (template defaults) | These are the current defaults, and all dependencies of this app support them. |
+| pnpm with `nodeLinker: hoisted` | Autolinking, Gradle and CocoaPods expect each `node_modules/<lib>` to be a real directory, not a symlink. For one app, symlinked `node_modules` adds risk and gives nothing. The setting is in `pnpm-workspace.yaml`, because pnpm 11 ignores `.npmrc` for its own options. |
+| `react-native-config` for build-time values | One `.env` file for each environment (`ENVFILE=...`). Both platforms read it natively. `src/config/env.ts` validates it once with zod. `.env` is in git because it holds public values only. |
+| Sentry (`@sentry/react-native`), off without a DSN | Sentry starts before the first render, so it also records startup crashes. With an empty `SENTRY_DSN`, the app sends nothing and does not call `Sentry.wrap` (without a DSN, `Sentry.wrap` shows a warning at each start). |
 
 ## App
 
 | Choice | Why |
 |---|---|
-| React Navigation: bottom tabs + a native stack with the order sheet as a modal route | The spec's four jobs map to tabs; "tap an instrument → order form" is a modal over any of them. Params carry ids only; the sheet reads prices and holdings from the query cache. |
-| TanStack Query for server state, persisted to MMKV | Caching, retries, offline reads and request cancellation for free. The 2024 attempt kept server data in Redux and recomputed derived values into the store; this app keeps the server response as the single source and derives everything in `useMemo`. |
-| zustand for client state | Only the candidate id and the dev bug level. Redux would be boilerplate for two fields. |
-| No offline outbox for orders | The API has no idempotency keys and a MARKET order replayed later executes at another price. Reads are cached; writes need a connection (`docs/offline.md`). |
-| zod schemas that transform the raw API shape | snake_case and float prices exist in `src/schemas` only. The app sees camelCase and integer cents. A malformed response fails at the boundary with a typed `ApiError('shape')`, not deep in a screen. |
-| Money as integer cents, `Intl` formatters | Float arithmetic on prices drifts; cents do not. One `formatMoney` / `formatPercent` with the UI locale. Signs are added by hand because Hermes does not support `signDisplay` everywhere. |
-| No form library | The order form is three inputs plus one pure function (`deriveOrder`) that yields quantity, total, and errors. react-hook-form would add a resolver layer around what is already a 60-line tested function. |
-| i18next + react-i18next + react-native-localize, es default | Spanish-speaking reviewers, prices in ARS; English mirrors every key. Typed keys from `es.json` make a missing key a type error. |
-| `react-native-svg` with 9 inline outline icons | Tab bar and status icons without a font-icon library and its native font linking. |
-| `StyleSheet` + typed tokens in `src/theme` | No styling library to learn or upgrade. Hex literals are a lint error outside the theme. |
+| React Navigation: bottom tabs and a native stack. The order sheet and the order detail are modal routes. | The four main jobs of the challenge map to four tabs. "Tap an instrument, then fill the order form" is a modal over any tab. Route params contain ids only. The modals read prices, holdings and orders from the query cache. |
+| TanStack Query for server state, stored in MMKV | It gives caching, retries, offline reads and request cancellation. The server response is the only copy of server data. Each screen calculates its values in `useMemo`. |
+| zustand for client state | The store holds two fields only: the candidate id and the debug bug level. Redux is too much boilerplate for two fields. |
+| No offline queue for orders | The API has no idempotency keys. A MARKET order sent later executes at a different price. The app caches reads, but an order needs a connection (`docs/offline.md`). |
+| zod schemas change the raw API shape | snake_case names and float prices exist only in `src/schemas`. The rest of the app sees camelCase names and integer cents. A bad response fails at the boundary with a typed `ApiError('shape')`, not inside a screen. |
+| Money in integer cents, `Intl` formatters | Float math on prices gives rounding errors. Integer cents do not. `formatMoney` and `formatPercent` are the only formatters, and they use the UI locale. The code adds the `+` sign itself, because Hermes does not support the `signDisplay` option on all devices. |
+| No form library | The order form has three inputs and one pure function (`deriveOrder`). The function returns the quantity, the total and the errors. react-hook-form adds a resolver layer around a 60-line function that already has tests. |
+| No rejection reason in the order detail | The API does not send a reason when it rejects an order. The order detail lists the usual causes and does not select one. A guess can show the user a wrong reason. |
+| i18next, react-i18next and react-native-localize. Spanish is the default. | The prices are in ARS. English has the same keys. The key type comes from `es.json`, so a missing key is a type error. |
+| `react-native-svg` with inline outline icons | The tab bar and status icons need no icon font library and no native font setup. |
+| `StyleSheet` and typed tokens in `src/theme` | No styling library to learn or upgrade. A hex color outside the theme is a lint error. |
 | No dark mode | Out of scope (`PRODUCT_BRIEF.md`). |
 
 ## Quality
 
 | Choice | Why |
 |---|---|
-| TypeScript `strict` + `noUncheckedIndexedAccess` | Mistakes fail at compile time. |
-| ESLint flat config (typescript-eslint, react, react-hooks, react-native, react-native-a11y, i18next) + Prettier | Rules that would otherwise live in a README: no hex colors outside the theme, no raw strings in JSX, no inline styles, a11y props on touchables, no `fetch` outside `src/api`, no `console`, `max-lines` on screens. `@react-native/eslint-config` was dropped: it pins ESLint 8 and Jest. |
-| Vitest, Node environment, logic only | Fast; the money math, schemas, the order derivation and the platform checks are what carries risk. Screens are covered by Maestro. |
-| `tests/platform.test.ts` | Source-level checks for device-only assumptions Node cannot see (i18n import order, cleartext traffic, env keys). |
-| Maestro + `scripts/run-app.sh` | The agent must see the app. Screenshots land at a fixed path after every flow. |
-| `scripts/verify.sh` + `core.hooksPath` pre-commit + CI | One command, enforced in three places. |
-| Dev-bundle check in `verify:full` | A release bundle skips LogBox; only the dev bundle shows module resolution failures a debug build would hit. |
-| gitleaks in the pre-commit hook (when installed) and in CI | Secrets never reach the remote. |
+| TypeScript `strict` and `noUncheckedIndexedAccess` | Mistakes fail at compile time. |
+| ESLint flat config (typescript-eslint, react, react-hooks, react-native, react-native-a11y, i18next) and Prettier | Lint enforces the rules of the project, not a document. Examples: no hex colors outside the theme, no raw strings in JSX, no inline styles, and accessibility props on each touchable. Also: no `fetch` outside `src/api`, no `console`, and `max-lines` on screens. The project does not use `@react-native/eslint-config`, because it pins ESLint 8 and Jest. |
+| Vitest in Node, for logic only | The tests are fast. The risk is in the money math, the schemas, the order form and the platform checks. Maestro covers the screens. |
+| `tests/platform.test.ts` | Source-level checks for device-only problems that Node cannot see: the i18n import order, cleartext traffic, and env keys. |
+| Maestro and `scripts/run-app.sh` | A developer or an agent must see the app after a UI change. Each flow saves its screenshots at a fixed path. |
+| `scripts/verify.sh`, a pre-commit hook (`core.hooksPath`) and CI | One command, enforced in three places. |
+| Dev-bundle check in `verify:full` | A release bundle does not use LogBox. Only the dev bundle shows the module errors that a debug build gets. |
+| gitleaks in the pre-commit hook (when it is installed) and in CI | Secrets do not get to the remote. |
 
 ## Patches
 
-One row per `pnpm patch`: library, version, reason, upstream issue. Delete the row with the patch.
+One row for each `pnpm patch`: library, version, reason, upstream issue. Delete the row when you delete the patch.
 
 | Library | Version | Reason | Upstream |
 |---|---|---|---|
