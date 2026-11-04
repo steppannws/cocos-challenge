@@ -16,6 +16,10 @@ describe('formatMoney', () => {
     expect(plain(formatMoney(-5000, 'es-AR', { signed: true }))).toBe('−$ 50,00');
     expect(plain(formatMoney(0, 'es-AR', { signed: true }))).toBe('$ 0,00');
   });
+  it('keeps the minus on a negative amount without signed', () => {
+    expect(plain(formatMoney(-150000, 'es-AR'))).toBe('−$ 1.500,00');
+    expect(formatPercent(-0.5, 'es-AR', { signed: false })).toBe('−50,00 %');
+  });
 });
 
 describe('formatPercent', () => {

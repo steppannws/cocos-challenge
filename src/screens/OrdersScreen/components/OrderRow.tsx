@@ -7,6 +7,7 @@ import { TickerAvatar } from '@/components/TickerAvatar';
 import { useLocale } from '@/hooks/useLocale';
 import type { Order } from '@/schemas/order';
 import { formatDateTime, formatMoney, formatQuantity } from '@/utils/format';
+import { orderTotalCents } from '@/utils/orders';
 import { rowStyles as styles } from '../styles';
 
 type Props = { order: Order; ticker: string; onPress: (order: Order) => void };
@@ -47,7 +48,7 @@ export const OrderRow = memo(function OrderRow({ order, ticker, onPress }: Props
         <StatusChip status={order.status} testID={`order-row-${order.id}-status`} />
         {order.priceCents !== null ? (
           <Text variant="captionStrong">
-            {formatMoney(order.quantity * order.priceCents, locale)}
+            {formatMoney(orderTotalCents(order.quantity, order.priceCents), locale)}
           </Text>
         ) : null}
       </View>

@@ -40,8 +40,9 @@ const useInvalidateAccount = () => {
 
 export const usePlaceOrder = () => {
   const invalidate = useInvalidateAccount();
-  // Never retried (queryClient default): a retried POST can double an order.
-  return useMutation({ mutationFn: placeOrder, onSuccess: () => invalidate() });
+  // Never retried (queryClient default): a retried POST can double an order. Reload on error too:
+  // a timed-out POST may still have created the order.
+  return useMutation({ mutationFn: placeOrder, onSettled: () => invalidate() });
 };
 
 export const useResetAccount = () => {

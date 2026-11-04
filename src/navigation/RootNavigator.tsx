@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 import { Icon, type IconName } from '@/components/Icon';
+import { useOrders } from '@/hooks/useOrders';
 import { AccountScreen } from '@/screens/AccountScreen';
 import { MarketScreen } from '@/screens/MarketScreen';
 import { OrderDetailScreen } from '@/screens/OrderDetailScreen';
@@ -45,6 +46,8 @@ const AccountIcon = tabIcon('account');
 
 function Tabs() {
   const { t } = useTranslation();
+  // Tabs mount lazily: keep the PENDING-order poll alive so a fill refreshes Portfolio from any tab.
+  useOrders();
   return (
     <Tab.Navigator
       screenOptions={{

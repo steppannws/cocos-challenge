@@ -109,6 +109,7 @@
     "estimatedTotal": "Estimated total",
     "submit": { "BUY": "Confirm buy", "SELL": "Confirm sell" },
     "offline": "You need a connection to send an order.",
+    "maybeSent": "We lost the connection while sending. The order may have gone through: check Orders before you try again.",
     "result": {
       "title": "Order sent",
       "id": "ID {{id}}",

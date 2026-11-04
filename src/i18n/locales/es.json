@@ -109,6 +109,7 @@
     "estimatedTotal": "Total estimado",
     "submit": { "BUY": "Confirmar compra", "SELL": "Confirmar venta" },
     "offline": "Necesitás conexión para enviar una orden.",
+    "maybeSent": "Se cortó la conexión al enviar. La orden puede haber llegado: revisá Órdenes antes de volver a intentar.",
     "result": {
       "title": "Orden enviada",
       "id": "ID {{id}}",
