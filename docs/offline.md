@@ -4,7 +4,7 @@ This document says what works without a connection, what does not work, and why.
 
 ## Reads: cached and stored on the device
 
-- Each query (instruments, search, portfolio, orders) goes through TanStack Query. The app stores the cache in MMKV (`src/api/queryClient.ts`, `src/offline/storage.ts`). Thus the app opens with the last data it received and fetches new data in the background.
+- Each query (instruments, search, portfolio, orders) goes through TanStack Query. The app stores the cache in MMKV (`src/api/queryClient.ts`, `src/offline/storage.ts`). Thus the app opens with the last data it received and fetches new data in the background. Search results are the exception: they are not stored, because search needs the network anyway and every typed term would grow the cache.
 - `gcTime` and `maxAge` are both 7 days. When a schema changes in an incompatible way, change the `buster` value (now `'v1'`). The app then deletes the stored cache.
 - NetInfo sends the connection state to the TanStack `onlineManager`. `useIsOnline()` reads the same source. While the device is offline, queries pause and do not fail, and `Screen` shows the offline banner.
 - Retries for reads: a network error, a timeout or a 5xx status retries two times. A 4xx status or a bad response shape does not retry (`isRetryable` in `src/api/client.ts`).

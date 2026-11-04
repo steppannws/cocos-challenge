@@ -1,6 +1,12 @@
 import NetInfo from '@react-native-community/netinfo';
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
-import { focusManager, onlineManager, QueryClient } from '@tanstack/react-query';
+import {
+  defaultShouldDehydrateQuery,
+  focusManager,
+  onlineManager,
+  QueryClient,
+} from '@tanstack/react-query';
+import type { Query } from '@tanstack/react-query';
 import { AppState } from 'react-native';
 import { storage } from '@/offline/storage';
 import { isRetryable } from './client';
@@ -25,6 +31,11 @@ export const persistOptions = {
   persister: createSyncStoragePersister({ storage, key: 'cocos.query-cache', throttleTime: 1_000 }),
   maxAge: 7 * DAY_MS,
   buster: 'v1',
+  // Search needs the network anyway; persisting every typed term only grows the cache.
+  dehydrateOptions: {
+    shouldDehydrateQuery: (query: Query) =>
+      query.queryKey[1] !== 'search' && defaultShouldDehydrateQuery(query),
+  },
 };
 
 // isInternetReachable is null while unknown: treat only an explicit false as offline.
