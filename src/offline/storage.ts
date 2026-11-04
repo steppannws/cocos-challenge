@@ -1,6 +1,6 @@
 import { createMMKV } from 'react-native-mmkv';
 
-export const mmkv = createMMKV({ id: 'cocos' });
+const mmkv = createMMKV({ id: 'cocos' });
 
 /**
  * One synchronous string store for everything that persists: the TanStack Query cache and the
