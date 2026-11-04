@@ -31,7 +31,9 @@
     "clearSearch": "Clear search",
     "empty": "No instruments to show.",
     "noResults": "No results for \"{{query}}\".",
-    "openOrder": "Trade {{ticker}}"
+    "openOrder": "Trade {{ticker}}",
+    "topMovers": "Top movers",
+    "allStocks": "All stocks"
   },
   "portfolio": {
     "title": "Portfolio",
@@ -44,7 +46,12 @@
     "emptyHint": "Buy an instrument from the Market tab.",
     "shares_one": "{{count}} share",
     "shares_other": "{{count}} shares",
-    "position": "{{shares}} @ {{price}}"
+    "position": "{{shares}} @ {{price}}",
+    "allocation": "Allocation",
+    "showBalance": "Show balance",
+    "hideBalance": "Hide balance",
+    "balanceHidden": "Balance hidden",
+    "actions": { "invest": "Invest", "orders": "Orders", "account": "Account" }
   },
   "orders": {
     "title": "Orders",
@@ -55,7 +62,31 @@
     "type": { "MARKET": "Market", "LIMIT": "Limit" },
     "line": "{{side}} · {{type}} · {{quantity}} × {{price}}",
     "lineNoPrice": "{{side}} · {{type}} · {{quantity}}",
-    "orderId": "#{{id}}"
+    "orderId": "#{{id}}",
+    "openDetail": "Open {{ticker}} order, {{status}}"
+  },
+  "orderDetail": {
+    "notFound": "We couldn't find this order.",
+    "side": "Side",
+    "type": "Type",
+    "quantity": "Quantity",
+    "price": "Price",
+    "limitPrice": "Limit price",
+    "total": "Total",
+    "createdAt": "Sent",
+    "id": "Order ID",
+    "tradeAgain": "Trade {{ticker}} again",
+    "explanationTitle": {
+      "FILLED": "Order filled",
+      "PENDING": "Waiting for your price",
+      "REJECTED": "Why was it rejected?"
+    },
+    "explanation": {
+      "FILLED_MARKET": "It executed right away at {{price}} per share.",
+      "FILLED_LIMIT": "The market reached your limit price of {{price}} and the order executed.",
+      "PENDING": "The order stays open until the market accepts your limit price. This list refreshes every 15 seconds while an order is pending.",
+      "REJECTED": "The market doesn't report the reason for a rejection. Common causes: not enough cash (buy) or shares (sell) when the order arrived, or a limit price the market didn't accept. You can send it again with other values."
+    }
   },
   "order": {
     "title": "Trade {{ticker}}",

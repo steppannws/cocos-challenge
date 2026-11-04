@@ -31,7 +31,9 @@
     "clearSearch": "Borrar búsqueda",
     "empty": "No hay instrumentos para mostrar.",
     "noResults": "No encontramos \"{{query}}\".",
-    "openOrder": "Operar {{ticker}}"
+    "openOrder": "Operar {{ticker}}",
+    "topMovers": "Mayores movimientos",
+    "allStocks": "Todas las acciones"
   },
   "portfolio": {
     "title": "Portfolio",
@@ -44,7 +46,12 @@
     "emptyHint": "Comprá un instrumento desde Mercado.",
     "shares_one": "{{count}} acción",
     "shares_other": "{{count}} acciones",
-    "position": "{{shares}} @ {{price}}"
+    "position": "{{shares}} @ {{price}}",
+    "allocation": "Distribución",
+    "showBalance": "Mostrar saldo",
+    "hideBalance": "Ocultar saldo",
+    "balanceHidden": "Saldo oculto",
+    "actions": { "invest": "Invertir", "orders": "Órdenes", "account": "Cuenta" }
   },
   "orders": {
     "title": "Órdenes",
@@ -55,7 +62,31 @@
     "type": { "MARKET": "Mercado", "LIMIT": "Límite" },
     "line": "{{side}} · {{type}} · {{quantity}} × {{price}}",
     "lineNoPrice": "{{side}} · {{type}} · {{quantity}}",
-    "orderId": "#{{id}}"
+    "orderId": "#{{id}}",
+    "openDetail": "Abrir orden de {{ticker}}, {{status}}"
+  },
+  "orderDetail": {
+    "notFound": "No encontramos esta orden.",
+    "side": "Operación",
+    "type": "Tipo",
+    "quantity": "Cantidad",
+    "price": "Precio",
+    "limitPrice": "Precio límite",
+    "total": "Total",
+    "createdAt": "Enviada",
+    "id": "ID de orden",
+    "tradeAgain": "Volver a operar {{ticker}}",
+    "explanationTitle": {
+      "FILLED": "Orden ejecutada",
+      "PENDING": "Esperando tu precio",
+      "REJECTED": "¿Por qué se rechazó?"
+    },
+    "explanation": {
+      "FILLED_MARKET": "Se ejecutó en el momento a {{price}} por acción.",
+      "FILLED_LIMIT": "El mercado alcanzó tu precio límite de {{price}} y la orden se ejecutó.",
+      "PENDING": "La orden queda abierta hasta que el mercado acepte tu precio límite. Mientras haya una orden pendiente, esta lista se actualiza cada 15 segundos.",
+      "REJECTED": "El mercado no informa el motivo del rechazo. Causas habituales: efectivo (compra) o acciones (venta) insuficientes al momento de recibir la orden, o un precio límite que el mercado no aceptó. Podés enviarla de nuevo con otros valores."
+    }
   },
   "order": {
     "title": "Operar {{ticker}}",

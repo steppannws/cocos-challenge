@@ -1,17 +1,20 @@
 import { useNavigation } from '@react-navigation/native';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, Pressable, RefreshControl, TextInput, View } from 'react-native';
+import { FlatList, Pressable, RefreshControl, ScrollView, TextInput, View } from 'react-native';
 import { Icon } from '@/components/Icon';
 import { QueryStateView } from '@/components/QueryStateView';
 import { Screen } from '@/components/Screen';
+import { SectionHeader } from '@/components/SectionHeader';
 import { useRefresh } from '@/hooks/useRefresh';
 import { Text } from '@/components/Text';
 import type { Instrument } from '@/schemas/instrument';
 import { colors } from '@/theme';
+import { topMovers } from '@/utils/portfolio';
 import { InstrumentRow } from './components/InstrumentRow';
+import { MoverCard } from './components/MoverCard';
 import { useMarketList } from './hooks/useMarketList';
-import { styles } from './styles';
+import { moverStyles, styles } from './styles';
 
 const keyExtractor = (item: Instrument) => String(item.id);
 
@@ -25,6 +28,11 @@ export function MarketScreen() {
     (instrument: Instrument) =>
       navigation.navigate('OrderSheet', { instrumentId: instrument.id, ticker: instrument.ticker }),
     [navigation],
+  );
+
+  const movers = useMemo(
+    () => (market.isSearching ? [] : topMovers(market.items)),
+    [market.isSearching, market.items],
   );
 
   return (
@@ -65,6 +73,24 @@ export function MarketScreen() {
         data={market.items}
         keyExtractor={keyExtractor}
         renderItem={({ item }) => <InstrumentRow instrument={item} onPress={openOrder} />}
+        ListHeaderComponent={
+          movers.length > 0 ? (
+            <View>
+              <SectionHeader title={t('market.topMovers')} />
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={moverStyles.list}
+                testID="market-movers"
+              >
+                {movers.map(({ item, change }) => (
+                  <MoverCard key={item.id} instrument={item} change={change} onPress={openOrder} />
+                ))}
+              </ScrollView>
+              <SectionHeader title={t('market.allStocks')} detail={String(market.items.length)} />
+            </View>
+          ) : undefined
+        }
         contentContainerStyle={styles.list}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"

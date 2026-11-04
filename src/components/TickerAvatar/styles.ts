@@ -1,12 +1,11 @@
 import { StyleSheet } from 'react-native';
-import { colors, radii } from '@/theme';
+import { radii } from '@/theme';
 
 export const styles = StyleSheet.create({
-  circle: {
+  tile: {
     width: 44,
     height: 44,
-    borderRadius: radii.pill,
-    backgroundColor: colors.primaryMuted,
+    borderRadius: radii.md,
     alignItems: 'center',
     justifyContent: 'center',
   },

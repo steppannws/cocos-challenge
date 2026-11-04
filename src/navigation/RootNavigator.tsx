@@ -2,9 +2,11 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { DefaultTheme, NavigationContainer, type Theme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
-import { Icon } from '@/components/Icon';
+import { View } from 'react-native';
+import { Icon, type IconName } from '@/components/Icon';
 import { AccountScreen } from '@/screens/AccountScreen';
 import { MarketScreen } from '@/screens/MarketScreen';
+import { OrderDetailScreen } from '@/screens/OrderDetailScreen';
 import { OrderSheetScreen } from '@/screens/OrderSheetScreen';
 import { OrdersScreen } from '@/screens/OrdersScreen';
 import { PortfolioScreen } from '@/screens/PortfolioScreen';
@@ -27,11 +29,19 @@ const theme: Theme = {
   },
 };
 
-type TabIconProps = { color: string; size: number };
-const MarketIcon = (props: TabIconProps) => <Icon name="market" {...props} />;
-const PortfolioIcon = (props: TabIconProps) => <Icon name="portfolio" {...props} />;
-const OrdersIcon = (props: TabIconProps) => <Icon name="orders" {...props} />;
-const AccountIcon = (props: TabIconProps) => <Icon name="account" {...props} />;
+type TabIconProps = { color: string; size: number; focused: boolean };
+const tabIcon = (name: IconName) =>
+  function TabIcon({ color, focused }: TabIconProps) {
+    return (
+      <View style={[styles.tabIcon, focused && styles.tabIconFocused]}>
+        <Icon name={name} size={22} color={color} />
+      </View>
+    );
+  };
+const MarketIcon = tabIcon('market');
+const PortfolioIcon = tabIcon('portfolio');
+const OrdersIcon = tabIcon('orders');
+const AccountIcon = tabIcon('account');
 
 function Tabs() {
   const { t } = useTranslation();
@@ -46,21 +56,21 @@ function Tabs() {
       }}
     >
       <Tab.Screen
-        name="Market"
-        component={MarketScreen}
-        options={{
-          title: t('tabs.market'),
-          tabBarIcon: MarketIcon,
-          tabBarButtonTestID: 'tab-market',
-        }}
-      />
-      <Tab.Screen
         name="Portfolio"
         component={PortfolioScreen}
         options={{
           title: t('tabs.portfolio'),
           tabBarIcon: PortfolioIcon,
           tabBarButtonTestID: 'tab-portfolio',
+        }}
+      />
+      <Tab.Screen
+        name="Market"
+        component={MarketScreen}
+        options={{
+          title: t('tabs.market'),
+          tabBarIcon: MarketIcon,
+          tabBarButtonTestID: 'tab-market',
         }}
       />
       <Tab.Screen
@@ -93,6 +103,11 @@ export function RootNavigator() {
         <Stack.Screen
           name="OrderSheet"
           component={OrderSheetScreen}
+          options={{ presentation: 'modal' }}
+        />
+        <Stack.Screen
+          name="OrderDetail"
+          component={OrderDetailScreen}
           options={{ presentation: 'modal' }}
         />
       </Stack.Navigator>

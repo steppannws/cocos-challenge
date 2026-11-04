@@ -53,3 +53,37 @@ export const portfolioTotals = (portfolio: Portfolio): PortfolioTotals => {
     totalCents: portfolio.cashCents + sum.marketValueCents,
   };
 };
+
+export type AllocationSlice = {
+  /** `null` is the cash slice. */
+  ticker: string | null;
+  valueCents: Cents;
+  /** Fraction of the total, 0..1. */
+  share: number;
+};
+
+/** Holdings by market value (largest first), then cash. Empty slices are dropped. */
+export const portfolioAllocation = (portfolio: Portfolio): AllocationSlice[] => {
+  const slices: Omit<AllocationSlice, 'share'>[] = portfolio.holdings
+    .map((holding) => ({
+      ticker: holding.ticker,
+      valueCents: holdingMetrics(holding).marketValueCents,
+    }))
+    .filter((slice) => slice.valueCents > 0)
+    .sort((a, b) => b.valueCents - a.valueCents);
+  if (portfolio.cashCents > 0) {
+    slices.push({ ticker: null, valueCents: portfolio.cashCents });
+  }
+  const total = slices.reduce((sum, slice) => sum + slice.valueCents, 0);
+  return slices.map((slice) => ({ ...slice, share: total > 0 ? slice.valueCents / total : 0 }));
+};
+
+type Priced = { lastPriceCents: Cents; closePriceCents: Cents };
+
+/** Instruments with the largest absolute daily change, biggest first. No close price = skipped. */
+export const topMovers = <T extends Priced>(items: readonly T[], limit = 5) =>
+  items
+    .map((item) => ({ item, change: dailyReturn(item.lastPriceCents, item.closePriceCents) }))
+    .filter((entry): entry is { item: T; change: number } => entry.change !== null)
+    .sort((a, b) => Math.abs(b.change) - Math.abs(a.change))
+    .slice(0, limit);

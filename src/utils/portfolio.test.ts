@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { dailyReturn, holdingMetrics, portfolioTotals } from './portfolio';
+import {
+  dailyReturn,
+  holdingMetrics,
+  portfolioAllocation,
+  portfolioTotals,
+  topMovers,
+} from './portfolio';
 
 describe('dailyReturn', () => {
   it('computes (last - close) / close', () => {
@@ -63,5 +69,41 @@ describe('portfolioTotals', () => {
       returnRatio: null,
       totalCents: 100000000,
     });
+  });
+});
+
+const holding = (ticker: string, quantity: number, lastPriceCents: number) => ({
+  instrumentId: ticker.length,
+  ticker,
+  quantity,
+  lastPriceCents,
+  closePriceCents: lastPriceCents,
+  avgCostCents: lastPriceCents,
+});
+
+describe('portfolioAllocation', () => {
+  it('orders holdings by market value, puts cash last and shares sum to 1', () => {
+    const slices = portfolioAllocation({
+      cashCents: 1000,
+      holdings: [holding('AAA', 1, 1000), holding('BBB', 2, 1000), holding('ZERO', 0, 500)],
+    });
+    expect(slices.map((s) => s.ticker)).toEqual(['BBB', 'AAA', null]);
+    expect(slices.map((s) => s.share)).toEqual([0.5, 0.25, 0.25]);
+  });
+  it('is empty when there is nothing to allocate', () => {
+    expect(portfolioAllocation({ cashCents: 0, holdings: [] })).toEqual([]);
+  });
+});
+
+describe('topMovers', () => {
+  it('ranks by absolute daily change and skips instruments without a close price', () => {
+    const items = [
+      { id: 'up', lastPriceCents: 110, closePriceCents: 100 },
+      { id: 'down', lastPriceCents: 80, closePriceCents: 100 },
+      { id: 'flat', lastPriceCents: 100, closePriceCents: 100 },
+      { id: 'noClose', lastPriceCents: 100, closePriceCents: 0 },
+    ];
+    expect(topMovers(items, 2).map((m) => m.item.id)).toEqual(['down', 'up']);
+    expect(topMovers(items).map((m) => m.item.id)).toEqual(['down', 'up', 'flat']);
   });
 });

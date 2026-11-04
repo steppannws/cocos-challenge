@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, RefreshControl, View } from 'react-native';
 import { QueryStateView } from '@/components/QueryStateView';
@@ -19,6 +20,11 @@ export function OrdersScreen() {
   const orders = useOrders();
   const instrumentsById = useInstrumentsById();
   const { refreshing, onRefresh } = useRefresh(orders.refetch);
+  const navigation = useNavigation();
+  const openDetail = useCallback(
+    (order: Order) => navigation.navigate('OrderDetail', { orderId: order.id }),
+    [navigation],
+  );
 
   // Newest first; the API returns insertion order.
   const sorted = useMemo(
@@ -35,6 +41,7 @@ export function OrdersScreen() {
           <OrderRow
             order={item}
             ticker={instrumentsById.get(item.instrumentId)?.ticker ?? `#${item.instrumentId}`}
+            onPress={openDetail}
           />
         )}
         ListHeaderComponent={

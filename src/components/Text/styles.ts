@@ -7,6 +7,7 @@ export const styles = StyleSheet.create({
     fontWeight: fontWeights.bold,
     color: colors.text,
     letterSpacing: -1,
+    fontVariant: ['tabular-nums'],
   },
   title: {
     fontSize: fontSizes.xl,
@@ -16,9 +17,19 @@ export const styles = StyleSheet.create({
   },
   heading: { fontSize: fontSizes.lg, fontWeight: fontWeights.semibold, color: colors.text },
   body: { fontSize: fontSizes.md, fontWeight: fontWeights.regular, color: colors.text },
-  bodyStrong: { fontSize: fontSizes.md, fontWeight: fontWeights.semibold, color: colors.text },
+  bodyStrong: {
+    fontSize: fontSizes.md,
+    fontWeight: fontWeights.semibold,
+    color: colors.text,
+    fontVariant: ['tabular-nums'],
+  },
   caption: { fontSize: fontSizes.sm, fontWeight: fontWeights.regular, color: colors.textMuted },
-  captionStrong: { fontSize: fontSizes.sm, fontWeight: fontWeights.semibold, color: colors.text },
+  captionStrong: {
+    fontSize: fontSizes.sm,
+    fontWeight: fontWeights.semibold,
+    color: colors.text,
+    fontVariant: ['tabular-nums'],
+  },
   label: {
     fontSize: fontSizes.xs,
     fontWeight: fontWeights.medium,

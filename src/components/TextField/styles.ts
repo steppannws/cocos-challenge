@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors, fontSizes, radii, spacing } from '@/theme';
+import { colors, fontSizes, fontWeights, radii, spacing } from '@/theme';
 
 export const styles = StyleSheet.create({
   container: { gap: spacing.xs },
@@ -11,7 +11,15 @@ export const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     fontSize: fontSizes.md,
     color: colors.text,
-    backgroundColor: colors.background,
+    backgroundColor: colors.card,
+  },
+  inputLarge: {
+    minHeight: 72,
+    borderRadius: radii.lg,
+    fontSize: fontSizes.xl,
+    fontWeight: fontWeights.bold,
+    textAlign: 'center',
+    fontVariant: ['tabular-nums'],
   },
   inputError: { borderColor: colors.loss },
 });

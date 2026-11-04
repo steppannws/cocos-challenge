@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors, spacing } from '@/theme';
+import { colors, radii, spacing } from '@/theme';
 
 export const styles = StyleSheet.create({
   header: { paddingHorizontal: spacing.lg, paddingTop: spacing.md, paddingBottom: spacing.sm },
@@ -11,11 +11,13 @@ export const rowStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.sm,
+    padding: spacing.md,
+    backgroundColor: colors.card,
+    borderRadius: radii.lg,
   },
+  pressed: { backgroundColor: colors.surface },
   main: { flex: 1, gap: spacing.xxs },
   trailing: { alignItems: 'flex-end', gap: spacing.xs },
 });
