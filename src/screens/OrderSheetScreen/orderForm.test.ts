@@ -79,9 +79,14 @@ describe('deriveOrder', () => {
   });
 
   it('flags a non-integer or empty quantity', () => {
-    expect(deriveOrder({ ...buy, quantity: '' }, ctx).errors.quantity).toBe('quantityInteger');
-    expect(deriveOrder({ ...buy, quantity: '2.5' }, ctx).errors.quantity).toBe('quantityInteger');
-    expect(deriveOrder({ ...buy, quantity: '0' }, ctx).errors.quantity).toBe('quantityInteger');
+    expect(deriveOrder({ ...buy, quantity: '' }, ctx).errors.quantity).toBe('quantityPositive');
+    expect(deriveOrder({ ...buy, quantity: '2.5' }, ctx).errors.quantity).toBe(
+      'quantityFractional',
+    );
+    expect(deriveOrder({ ...buy, quantity: '10,2' }, ctx).errors.quantity).toBe(
+      'quantityFractional',
+    );
+    expect(deriveOrder({ ...buy, quantity: '0' }, ctx).errors.quantity).toBe('quantityPositive');
   });
 
   it('limit orders need a price and reserve at that price', () => {
@@ -123,6 +128,6 @@ describe('deriveOrder', () => {
 
   it('skips the balance checks while the quantity is still invalid', () => {
     const d = deriveOrder({ ...sell, quantity: '' }, { ...ctx, availableShares: 0 });
-    expect(d.errors).toEqual({ quantity: 'quantityInteger' });
+    expect(d.errors).toEqual({ quantity: 'quantityPositive' });
   });
 });
