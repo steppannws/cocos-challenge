@@ -42,14 +42,15 @@ export const HoldingRow = memo(function HoldingRow({ holding, name, onPress }: P
       <View style={styles.trailing}>
         <Text variant="bodyStrong">{formatMoney(metrics.marketValueCents, locale)}</Text>
         <DeltaText
+          pill
           value={metrics.pnlCents}
-          text={formatMoney(metrics.pnlCents, locale, { signed: true })}
+          text={formatPercent(metrics.returnRatio, locale)}
           variant="captionStrong"
         />
         <DeltaText
           value={metrics.pnlCents}
-          text={formatPercent(metrics.returnRatio, locale)}
-          variant="captionStrong"
+          text={formatMoney(metrics.pnlCents, locale, { signed: true })}
+          variant="caption"
         />
       </View>
     </Pressable>

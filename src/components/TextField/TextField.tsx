@@ -7,9 +7,11 @@ type Props = Omit<TextInputProps, 'style'> & {
   label: string;
   error?: string;
   hint?: string;
+  /** Big centered figure, for the amount a form is about. */
+  large?: boolean;
 };
 
-export function TextField({ label, error, hint, ...input }: Props) {
+export function TextField({ label, error, hint, large = false, ...input }: Props) {
   return (
     <View style={styles.container}>
       <Text variant="label">{label}</Text>
@@ -17,7 +19,7 @@ export function TextField({ label, error, hint, ...input }: Props) {
         {...input}
         accessibilityLabel={label}
         placeholderTextColor={colors.textMuted}
-        style={[styles.input, error ? styles.inputError : null]}
+        style={[styles.input, large && styles.inputLarge, error ? styles.inputError : null]}
       />
       {error ? (
         <Text variant="caption" color="loss">

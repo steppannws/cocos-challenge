@@ -11,7 +11,8 @@ import { usePortfolio } from '@/hooks/usePortfolio';
 import { useRefresh } from '@/hooks/useRefresh';
 import type { Holding } from '@/schemas/portfolio';
 import { colors } from '@/theme';
-import { portfolioTotals } from '@/utils/portfolio';
+import { portfolioAllocation, portfolioTotals } from '@/utils/portfolio';
+import { HeaderBand } from './components/HeaderBand';
 import { HoldingRow } from './components/HoldingRow';
 import { PortfolioSummary } from './components/PortfolioSummary';
 import { styles } from './styles';
@@ -30,6 +31,10 @@ export function PortfolioScreen() {
     () => (portfolio.data ? portfolioTotals(portfolio.data) : null),
     [portfolio.data],
   );
+  const allocation = useMemo(
+    () => (portfolio.data ? portfolioAllocation(portfolio.data) : []),
+    [portfolio.data],
+  );
   const holdings = useMemo(
     () => [...(portfolio.data?.holdings ?? [])].sort((a, b) => a.ticker.localeCompare(b.ticker)),
     [portfolio.data],
@@ -46,7 +51,7 @@ export function PortfolioScreen() {
   );
 
   return (
-    <Screen testID="portfolio-screen">
+    <Screen testID="portfolio-screen" tinted>
       <FlatList
         data={holdings}
         keyExtractor={keyExtractor}
@@ -59,10 +64,12 @@ export function PortfolioScreen() {
         )}
         ListHeaderComponent={
           <View>
-            <View style={styles.header}>
-              <Text variant="title">{t('portfolio.title')}</Text>
-              {totals ? <PortfolioSummary totals={totals} /> : null}
-            </View>
+            <HeaderBand>
+              <Text variant="title" color="textOnHero" style={styles.bandTitle}>
+                {t('portfolio.title')}
+              </Text>
+            </HeaderBand>
+            {totals ? <PortfolioSummary totals={totals} allocation={allocation} /> : null}
             {totals ? (
               <SectionHeader title={t('portfolio.holdings')} detail={String(holdings.length)} />
             ) : null}
@@ -78,12 +85,15 @@ export function PortfolioScreen() {
             testID="portfolio-state"
           />
         }
+        style={styles.listBackground}
         contentContainerStyle={styles.list}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={colors.primary}
+            // iOS spinner sits on the blue band; Android draws its own white disc, so keep it blue.
+            tintColor={colors.textOnHero}
+            colors={[colors.primary]}
           />
         }
         testID="portfolio-list"

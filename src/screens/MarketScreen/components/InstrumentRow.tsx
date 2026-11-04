@@ -33,7 +33,12 @@ export const InstrumentRow = memo(function InstrumentRow({ instrument, onPress }
       </View>
       <View style={styles.trailing}>
         <Text variant="bodyStrong">{formatMoney(instrument.lastPriceCents, locale)}</Text>
-        <DeltaText value={change} text={formatPercent(change, locale)} variant="captionStrong" />
+        <DeltaText
+          pill
+          value={change}
+          text={formatPercent(change, locale)}
+          variant="captionStrong"
+        />
       </View>
     </Pressable>
   );

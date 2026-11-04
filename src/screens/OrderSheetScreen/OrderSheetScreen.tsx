@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
 import { Button } from '@/components/Button';
+import { Card } from '@/components/Card';
 import { ErrorState } from '@/components/ErrorState';
 import { Icon } from '@/components/Icon';
 import { KeyValueRow } from '@/components/KeyValueRow';
@@ -185,6 +186,8 @@ export function OrderSheetScreen({ route, navigation }: Props) {
                     value={values.quantity}
                     onChangeText={(quantity) => form.set('quantity', quantity)}
                     keyboardType="number-pad"
+                    large
+                    placeholder="0"
                     error={errorText('quantity')}
                     testID="order-quantity"
                   />
@@ -194,6 +197,8 @@ export function OrderSheetScreen({ route, navigation }: Props) {
                     value={values.amount}
                     onChangeText={(amount) => form.set('amount', amount)}
                     keyboardType="decimal-pad"
+                    large
+                    placeholder="0"
                     error={errorText('amount')}
                     hint={
                       derived.quantity > 0
@@ -205,7 +210,7 @@ export function OrderSheetScreen({ route, navigation }: Props) {
                 )}
               </View>
 
-              <View style={styles.summary}>
+              <Card style={styles.summary}>
                 <KeyValueRow
                   label={t('order.estimatedTotal')}
                   value={formatMoney(derived.totalCents, locale)}
@@ -216,7 +221,7 @@ export function OrderSheetScreen({ route, navigation }: Props) {
                     {t(`order.errors.${visibleErrors.form}`)}
                   </Text>
                 ) : null}
-              </View>
+              </Card>
 
               {placeOrder.isError ? (
                 <ErrorState error={placeOrder.error} testID="order-error" />

@@ -12,6 +12,7 @@ export type RootStackParamList = {
   Tabs: NavigatorScreenParams<TabParamList> | undefined;
   /** Prices and holdings come from the query cache; params stay serializable. */
   OrderSheet: { instrumentId: number; ticker: string; side?: OrderSide };
+  OrderDetail: { orderId: string };
 };
 
 declare global {
