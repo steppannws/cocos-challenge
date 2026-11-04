@@ -1,86 +1,84 @@
 # Production checklist
 
-Walk this before the first store submission and before each major release. Items marked (CI) are automated.
+Do these checks before the first store submission and before each major release. CI does the items marked (CI). This app has not had a store release, so no item is checked yet.
 
 ## Build and release
 
-- [ ] `pnpm verify:full` green (CI)
-- [ ] `eas.json` profiles: `development`, `preview`, `production`. Each has its own `channel`
-- [ ] Build numbers (`CURRENT_PROJECT_VERSION`, `versionCode`) bumped by the release script, never by hand, and in sync with `package.json`
-- [ ] Bundle id / package name final. They cannot change after the first submission
-- [ ] No OTA/CodePush layer in this app: every JS change ships as a new build. If one is added later, pin its runtime version to the native build
-- [ ] Native change (new native dependency, permission, Info.plist/AndroidManifest edit) → new build, and `pnpm pods` + a clean rebuild locally before the release build
-- [ ] Production env vars come from the CI secret store into an `ENVFILE` for `react-native-config`; `.env` in the repo holds public defaults only
-- [ ] Minimum supported version gate: the app asks the server for the minimum version at launch and shows a blocking update screen below it. OTA cannot fix an old binary
+- [ ] `pnpm verify:full` is green (CI).
+- [ ] A release script sets the build numbers (iOS `CURRENT_PROJECT_VERSION`, Android `versionCode`) from `package.json`. Nobody changes them by hand.
+- [ ] The bundle id and the package name are final. You cannot change them after the first submission.
+- [ ] This app has no over-the-air update layer, so each JS change needs a new build. If you add such a layer later, pin its runtime version to the native build.
+- [ ] A native change needs `pnpm pods` and a clean local build before the release build. Native changes are: a new native dependency, a permission, or an `Info.plist` or `AndroidManifest.xml` change.
+- [ ] Production values come from the CI secret store into an `ENVFILE` for `react-native-config`. The `.env` file in the repo holds public defaults only.
+- [ ] The app gets the minimum supported version from the server at launch. Below that version, it shows a screen that blocks use until the user updates. Only a new binary can fix an old binary.
 
-## Check the built binary, not the source
+## Check the release binary, not the source
 
-From a past app's release script. Run on the production build artifact:
+Do these checks on the production build file:
 
-- [ ] API URL in the bundle is the production one (no `localhost`, LAN IP or staging host)
-- [ ] Android: `usesCleartextTraffic=false` in the release manifest (`plugins/noCleartext.js`)
-- [ ] Android: no `AD_ID` permission unless you use advertising ID (and declared it in Play Console)
-- [ ] Android: signed with the release key, not the debug key
-- [ ] Debug screens, dev menus and test accounts only behind `__DEV__`
+- [ ] The API URL in the bundle is the production URL (no `localhost`, LAN IP or staging host).
+- [ ] Android: the release manifest has `usesCleartextTraffic=false`. `tests/platform.test.ts` checks that the placeholder stays in `AndroidManifest.xml`.
+- [ ] Android: no `AD_ID` permission, unless the app uses the advertising ID and the Play Console declares it.
+- [ ] Android: the build has the release signature, not the debug signature.
+- [ ] Debug screens, dev menus and test accounts exist only behind `__DEV__`. In this app, the bug level and the account reset on the Account tab are debug-only.
 
 ## Store review
 
-- [ ] Apple 3.1.1: no links or copy pointing to external purchases for digital goods. Rejected in a past app
-- [ ] Sign in with Apple, if any other social login exists (iOS)
-- [ ] Account deletion inside the app, if accounts can be created
-- [ ] Privacy policy URL and support URL live
-- [ ] iOS privacy manifest: every "required reason" API declared (check third-party libraries; the template ships `PrivacyInfo.xcprivacy`)
-- [ ] App Store privacy labels and Play data safety form match what the app and its SDKs collect
-- [ ] Permission prompts: every `NS*UsageDescription` / Android permission has a real, specific reason string, and is requested only when needed
-- [ ] Screenshots, description, keywords, age rating, review notes with a demo account
+- [ ] Apple guideline 3.1.1: no links or text that point to external purchases of digital goods.
+- [ ] Sign in with Apple, if the app has any other social login (iOS).
+- [ ] Account deletion in the app, if a user can make an account.
+- [ ] The privacy policy URL and the support URL work.
+- [ ] iOS privacy manifest (`ios/CocosChallenge/PrivacyInfo.xcprivacy`): it declares each "required reason" API. Check the third-party libraries too.
+- [ ] The App Store privacy labels and the Play data safety form agree with the data that the app and its SDKs collect.
+- [ ] Each `NS*UsageDescription` and each Android permission has a specific reason text. The app asks for a permission only when it needs it.
+- [ ] Screenshots, description, keywords, age rating, and review notes with a demo account are ready.
 
 ## Monitoring
 
-- [ ] Crash reporting on (Sentry, `SENTRY_DSN` set for the release `ENVFILE`), with source maps uploaded for every build
-- [ ] Crash reporting starts at app launch, before login. Consent gates only the user identity attached to events; never attach identity for minors
-- [ ] Global JS error handler + React error boundary at the root. No `LogBox.ignoreAllLogs()`
-- [ ] Release/version tag on every event, so a crash maps to a build and an update
+- [ ] Crash reporting is on (Sentry, with `SENTRY_DSN` set in the release `ENVFILE`). Each build uploads its source maps.
+- [ ] Crash reporting starts at app launch, before login. User consent controls only the user identity attached to events. Never attach an identity for a minor.
+- [ ] A global JS error handler and a React error boundary exist at the root. No `LogBox.ignoreAllLogs()`.
+- [ ] Each event has a release and version tag, so you can find the build that crashed.
 
 ## Upgrades
 
-- [ ] Upgrade React Native one minor at a time with the Upgrade Helper, soon after each release. A past app spent 10 weeks on a two-version jump that broke analytics, crash reporting and payments SDKs
-- [ ] Run `scripts/run-app.sh` on both platforms before and after, and compare the screenshots
-- [ ] Re-check every patch in `patches/` against the new library versions
+- [ ] Upgrade React Native one minor version at a time with the Upgrade Helper, soon after each release. A jump of two or more versions breaks many SDKs at the same time.
+- [ ] Run `scripts/run-app.sh` on both platforms before and after the upgrade, and compare the screenshots.
+- [ ] Check each patch in `patches/` against the new library versions.
 
 ## Devices
 
-- [ ] Phones only: `ios.supportsTablet: false` in `app.config.ts`. Tablets supported: smoke screenshots on an iPad simulator and a tablet emulator
+- [ ] Phones only: set `TARGETED_DEVICE_FAMILY = 1` in the iOS project (now it is `1,2`, which allows iPad). If you keep tablet support, take smoke screenshots on an iPad simulator and a tablet emulator.
 
 ## Offline and data
 
-- [ ] Kill the app with pending outbox entries → reopen → entries are sent (`docs/offline.md`)
-- [ ] Airplane mode: every main screen shows cached data or a designed empty state, never a spinner forever
-- [ ] Logout with pending entries asks before discarding
+- [ ] Airplane mode: each main screen shows cached data or a designed empty state. A spinner never stays forever.
+- [ ] No order goes to a queue while the device is offline (`docs/offline.md`). The submit button is disabled.
+- [ ] A change of candidate id never shows the cached data of the previous candidate.
 
 ## Accessibility
 
-- [ ] VoiceOver and TalkBack pass on the main flows: every control has a role and a label
-- [ ] Text scales with system font size without clipping (test at the largest size)
-- [ ] Touch targets at least 44×44 pt
-- [ ] Contrast at least 4.5:1 for body text
+- [ ] VoiceOver and TalkBack work on the main flows. Each control has a role and a label.
+- [ ] Text scales with the system font size and does not clip (test at the largest size).
+- [ ] Each touch target is at least 44×44 pt.
+- [ ] Body text has a contrast of at least 4.5:1.
 
 ## Performance
 
-- [ ] Long lists use `FlashList` or a correctly keyed `FlatList`
-- [ ] Remote images sized and cached (`Image` with explicit dimensions; a cache library only if the app grows image-heavy)
-- [ ] Cold start measured on a low-end Android device
+- [ ] Long lists use `FlashList` or a `FlatList` with correct keys.
+- [ ] Remote images have explicit dimensions and a cache. Add a cache library only if the app gets many images.
+- [ ] Measure the cold start on a low-end Android device.
 
 ## Security
 
-- [ ] Tokens, if the app ever gets auth, only in Keychain/Keystore (`react-native-keychain`), never in MMKV or AsyncStorage
-- [ ] No secrets in `.env` (it is bundled into the app) or in the repo (gitleaks in CI)
-- [ ] Certificates/keys for push and signing stored in EAS, not in the repo
-- [ ] Deep links validated before navigation
+- [ ] If the app gets a login, tokens go only into Keychain or Keystore (`react-native-keychain`), never into MMKV or AsyncStorage.
+- [ ] No secrets in `.env` (the app bundle contains it) or in the repo (gitleaks in CI).
+- [ ] Push and signing certificates and keys stay in the CI secret store, not in the repo.
+- [ ] The app validates each deep link before it navigates.
 
-## Apps for children or handling money (skip otherwise)
+## Money
 
-- [ ] COPPA / Google Play Families: no `AD_ID`, no IDFA-collecting SDKs. Audit every analytics and attribution SDK. A past kids app shipped a hotfix to remove `AD_ID`
-- [ ] Device integrity: Play Integrity API, not SafetyNet (shut down)
-- [ ] Certificate pinning, if used: a backup pin and a rotation plan before the certificate expires
-- [ ] Biometric or password re-auth before sensitive actions (transfers, changing payout details)
-- [ ] Money amounts tested with rounding edge cases (`0.1 + 0.2`, sell-all, currency with no minor unit)
+- [ ] Test money amounts with rounding edge cases (`0.1 + 0.2`, sell all shares, a currency with no minor unit).
+- [ ] Device integrity: use the Play Integrity API, not SafetyNet (Google shut it down).
+- [ ] Certificate pinning, if used: keep a backup pin and a rotation plan before the certificate expires.
+- [ ] Ask for biometric or password authentication again before a sensitive action (a transfer, a change to payout details).

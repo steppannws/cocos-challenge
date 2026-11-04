@@ -1,33 +1,44 @@
 # Cocos Challenge
 
-A small broker app for the [Cocos Capital React Native challenge](https://github.com/cocos-capital/cocos-challenge/blob/main/react-native-challenge.md): browse instruments, search by ticker, see your portfolio, send BUY/SELL orders (MARKET or LIMIT, by quantity or by ARS amount) and follow their status.
+A broker app for the [Cocos Capital React Native challenge](https://github.com/cocos-capital/cocos-challenge/blob/main/react-native-challenge.md). The user can:
 
-Bare React Native 0.88 (New Architecture, Hermes), TypeScript strict, TanStack Query, zustand, zod, i18next (es/en). No Expo.
+- see the instrument list and search it by ticker,
+- see the portfolio with market value, P&L and return,
+- send BUY and SELL orders (MARKET or LIMIT, by quantity or by ARS amount),
+- follow the status of each order.
 
-| Market | Order sheet | Result | Portfolio | Orders |
-|---|---|---|---|---|
-| ![Market](docs/screenshots/market.png) | ![Order sheet](docs/screenshots/order-form.png) | ![Order result](docs/screenshots/order-result.png) | ![Portfolio](docs/screenshots/portfolio.png) | ![Orders](docs/screenshots/orders.png) |
+Stack: bare React Native 0.88 (New Architecture, Hermes), TypeScript strict, TanStack Query, zustand, zod, i18next (Spanish and English).
 
-Verified on iPhone 17 (iOS 27 simulator) and a Pixel-class Android 15 emulator: `pnpm verify:full` green, Maestro flows `smoke`, `tour` and `limit-order` passing on iOS, `smoke` and `tour` on Android.
+| Portfolio | Market | Search |
+|---|---|---|
+| ![Portfolio](docs/screenshots/portfolio.png) | ![Market](docs/screenshots/market.png) | ![Search](docs/screenshots/market-search.png) |
 
-| Android: Market | Android: Order sheet |
-|---|---|
-| ![Android market](docs/screenshots/android-market.png) | ![Android order form](docs/screenshots/android-order-form.png) |
+| Order sheet | Order result | Orders | Order detail |
+|---|---|---|---|
+| ![Order sheet](docs/screenshots/order-form.png) | ![Order result](docs/screenshots/order-result.png) | ![Orders](docs/screenshots/orders.png) | ![Order detail](docs/screenshots/order-detail.png) |
 
-## Requirements → where they live
+The screenshots come from the iPhone 16 Pro simulator (iOS 18.2). The Maestro flow in `.maestro/tour.yaml` takes them.
+
+## Requirements and where they live
 
 | Challenge requirement | Screen | Code |
 |---|---|---|
-| `/instruments`: ticker, name, last price, daily return | **Market** tab | `src/screens/MarketScreen`, return computed by `dailyReturn` in `src/utils/portfolio.ts` |
-| `/search?query=` by ticker | Market search box (debounced, keeps previous results while typing) | `useMarketList` in `src/screens/MarketScreen/hooks` |
-| `/portfolio`: ticker, quantity, market value, P&L, total return | **Portfolio** tab (plus cash, invested and totals) | `holdingMetrics` / `portfolioTotals` in `src/utils/portfolio.ts` |
-| `POST /orders` from a modal: side, type, quantity **or** ARS amount, price for LIMIT; show returned `id` + `status` | **Order sheet** (tap any instrument or holding) | `src/screens/OrderSheetScreen`, pure logic in `orderForm.ts` |
-| Extra: order history with live status for `PENDING` LIMIT orders | **Orders** tab (polls every 15 s while something is pending) | `useOrders` in `src/hooks/useOrders.ts` |
-| Extra: per-candidate account, API bug level and reset for QA | **Account** tab (dev tools only in debug builds) | `src/screens/AccountScreen`, `src/store/session.ts` |
+| `/instruments`: ticker, name, last price, daily return | **Market** tab, with a "Top movers" row | `src/screens/MarketScreen`. `dailyReturn` and `topMovers` in `src/utils/portfolio.ts` calculate the values. |
+| `/search?query=` by ticker | Search box on the Market tab. The search waits 300 ms after the last key and keeps the previous results on screen while it loads. | `useMarketList` in `src/screens/MarketScreen/hooks` |
+| `/portfolio`: ticker, quantity, market value, P&L, total return | **Portfolio** tab, the first tab. It also shows cash, invested value, totals and an allocation bar. | `holdingMetrics`, `portfolioTotals` and `portfolioAllocation` in `src/utils/portfolio.ts` |
+| `POST /orders` from a modal: side, type, quantity **or** ARS amount, price for LIMIT. Show the `id` and `status` that the API returns. | **Order sheet**. Tap an instrument or a holding to open it. | `src/screens/OrderSheetScreen`. The form logic is one pure function in `orderForm.ts`. |
+| Extra: order history with the live status of `PENDING` LIMIT orders | **Orders** tab. It polls every 15 s while an order is pending. | `useOrders` in `src/hooks/useOrders.ts` |
+| Extra: order detail with an explanation of the status | **Order detail** modal. Tap an order to open it. | `src/screens/OrderDetailScreen` |
+| Extra: one account per candidate, the API bug level and an account reset, for QA | **Account** tab. The bug level and the reset show only in debug builds. | `src/screens/AccountScreen`, `src/store/session.ts` |
 
 ## Run it
 
-Requirements: Node ≥ 22, pnpm 11 (`npm i -g pnpm@11`; the `packageManager` field pins the exact version), Xcode 16+ with CocoaPods through Bundler (Ruby ≥ 2.7), Android Studio with JDK 17+ and one AVD.
+You need:
+
+- Node 22 or later,
+- pnpm 11 (`npm i -g pnpm@11`, the `packageManager` field in `package.json` pins the exact version),
+- Xcode 16 or later, with CocoaPods through Bundler (Ruby 2.7 or later),
+- Android Studio with JDK 17 or later and one AVD.
 
 ```bash
 pnpm install          # also enables the git pre-commit hook
@@ -36,66 +47,113 @@ pnpm start            # Metro
 pnpm ios              # or: pnpm android
 ```
 
-Configuration lives in `.env` (committed, public values only):
+The configuration is in `.env`. The file is in git because it holds public values only:
 
 ```
 API_URL=https://dummy-api-topaz.vercel.app
-CANDIDATE_ID=stepan-nikulenko   # X-Candidate-Id: the API keeps one portfolio per value; change it in the Account tab too
-SENTRY_DSN=                     # empty = crash reporting off
+CANDIDATE_ID=stepan-nikulenko   # X-Candidate-Id: the API keeps one portfolio per value. The Account tab can change it.
+SENTRY_DSN=                     # empty = crash reporting is off
 ```
 
-The API also requires `X-Enable-Bugs`. The app sends `off` (the "golden path"). Debug builds can switch to `easy|medium|hard` from the Account tab to see how the UI copes with injected defects; release builds always send `off`.
+The API also requires the `X-Enable-Bugs` header. The app sends `off`, which gives correct API behavior. In a debug build, the Account tab can change the value to `easy`, `medium` or `hard`. The API then injects defects, and you can see how the UI handles them. A release build always sends `off`.
 
 ## Checks
 
 ```bash
-pnpm verify        # typecheck + lint + 47 unit tests (also runs in the pre-commit hook)
-pnpm verify:full   # + release bundles for both platforms + a dev-bundle sanity check (CI)
+pnpm verify        # typecheck + lint + 54 unit tests (the pre-commit hook runs it too)
+pnpm verify:full   # verify + release bundles for both platforms + a dev-bundle check (CI runs this)
 scripts/run-app.sh ios .maestro/tour.yaml   # simulator + debug build + Maestro flow + screenshots in artifacts/screenshots/
 ```
 
-Maestro flows: `smoke.yaml` (app renders), `tour.yaml` (search, MARKET buy, portfolio, orders), `limit-order.yaml` (LIMIT by amount, validation, PENDING result).
+Maestro flows:
+
+- `smoke.yaml`: the app starts and shows the Market tab.
+- `tour.yaml`: search, a MARKET buy, the portfolio, the orders list and the order detail.
+- `limit-order.yaml`: a LIMIT buy by amount, a validation error, and the `PENDING` result. It needs a candidate with no CAPX shares (use "Reset account" first).
 
 ## Technical decisions
 
-The one-line-per-choice version is in [`docs/decisions.md`](docs/decisions.md). The reasoning behind the ones that matter:
+[`docs/decisions.md`](docs/decisions.md) gives one line for each choice. This section explains the most important ones.
 
-### Server state is the only state; everything else is derived
+### The server response is the only copy of server data
 
-The 2024 version of this app kept API data in Redux and wrote computed values (returns, totals, formatted strings) back into the store, so the same number lived in three places. Here:
+- API responses live in **TanStack Query** and in no other place. All query keys are in `src/api/queryKeys.ts`. Keys for per-candidate data contain the candidate id. Thus a change of account starts a new fetch and never shows the cache of a different candidate.
+- Each value on the screen is a **pure function of a response**. `dailyReturn`, `holdingMetrics`, `portfolioTotals`, `portfolioAllocation`, `topMovers` and `maxSharesForAmount` (`src/utils`) run inside `useMemo`. Unit tests check them with the numbers from the challenge.
+- The order sheet is the clearest example. The five inputs (side, type, quantity or amount mode, value, limit price) and the market data go into one function, `deriveOrder`. It returns the quantity to send, the price, the estimated total and all validation errors. The screen shows that object. Component state holds no second copy of "quantity" or "isValid". The 13 tests in `orderForm.test.ts` cover the full form without a render.
+- **Client state** is the candidate id and the debug bug level only. A small zustand store keeps them in MMKV.
 
-- API responses live in **TanStack Query** and nowhere else. Query keys are centralized (`src/api/queryKeys.ts`); per-candidate data carries the candidate id in its key, so switching accounts refetches instead of showing someone else's cache.
-- Everything shown on screen is a **pure function of a response**: `dailyReturn`, `holdingMetrics`, `portfolioTotals`, `maxSharesForAmount` (`src/utils`) are called inside `useMemo`. They are unit-tested with the challenge's own numbers.
-- The order sheet is the clearest case: five inputs (side, type, quantity/amount mode, value, limit price) plus the market context go into one function, `deriveOrder`, which returns the quantity to send, the reserved price, the estimated total and every validation error. The screen renders that object; there is no second copy of "quantity" or "isValid" in component state. The 11 tests in `orderForm.test.ts` cover the whole form without rendering it.
-- **Client state** is the candidate id and the dev bug level: a 20-line zustand store persisted to MMKV.
+### Money is in integer cents
 
-### Money in integer cents, converted once
+The API sends prices as float pesos (`45.72`). The zod schemas in `src/schemas` change them to integer cents and change snake_case names to camelCase. This happens once, at the API boundary. No other part of the app sees a float price or an API field name.
 
-The API sends float pesos (`45.72`). The zod schemas in `src/schemas` convert them to integer cents at the boundary and rename snake_case to camelCase; the rest of the app never sees a float price or an API field name. `formatMoney` / `formatPercent` (`Intl`, locale from the UI language) are the only formatters. Signs are added by hand because Hermes on Android does not support `Intl` `signDisplay` everywhere.
+`formatMoney` and `formatPercent` are the only formatters. They use `Intl` with the locale of the UI language. The code adds the `+` sign itself, because Hermes on Android does not support the `Intl` option `signDisplay` on all devices.
 
 ### Error handling
 
-- **One HTTP entry point**, `request()` in `src/api/client.ts`: adds the required headers, a 15 s timeout, parses the body, validates it with the caller's zod schema, and throws a typed `ApiError` with a `kind`: `network`, `timeout`, `http` (with the API's own `{ error }` text, e.g. "Insufficient cash") or `shape` (200 with the wrong body). Lint forbids `fetch` anywhere else.
-- **Retry policy**: reads retry twice on `network`/`timeout`/5xx, never on 4xx or malformed bodies. **Mutations never retry**: the API has no idempotency keys, so a retried `POST /orders` is a second order.
-- **UI states**: every list renders `QueryStateView` (loading / error with retry / empty) and pull-to-refresh; the order sheet shows the API error inline and keeps the form. A root `ErrorBoundary` replaces a white screen with a retry button and reports to Sentry (a no-op without a DSN). `console.*` is a lint error; `src/utils/logger.ts` is the only logger.
-- **Offline**: reads are persisted (MMKV, 7 days) so the tabs open with the last data and a banner. Orders are **not** queued offline on purpose (see [`docs/offline.md`](docs/offline.md)): a MARKET order replayed later executes at another price, and without idempotency a retry can double it. The submit button is disabled while offline and while a request is pending.
-- **Response validation at the boundary**: a malformed instrument list fails as one `shape` error with a retry, instead of a `NaN` return on one row. The API's `X-Enable-Bugs: hard` mode is a good way to see this in action.
+- **One HTTP entry point**: `request()` in `src/api/client.ts`. It adds the required headers and a 15 s timeout. It parses the body and validates it with the zod schema of the caller. On failure it throws an `ApiError` with one of these kinds:
+  - `network`: no connection.
+  - `timeout`: no response in 15 s.
+  - `http`: a 4xx or 5xx status. The error contains the text from the API, for example "Insufficient cash".
+  - `shape`: a 200 response with a body that does not match the schema.
+
+  A lint rule forbids `fetch` in all other files.
+- **Retries**: a read retries two times after a `network` error, a `timeout` or a 5xx status. A read does not retry after a 4xx status or a `shape` error. **An order never retries.** The API has no idempotency keys, so a second `POST /orders` makes a second order.
+- **UI states**: each list uses `QueryStateView` for the loading, error (with a retry button) and empty states, and supports pull-to-refresh. The order sheet shows the API error in the form and keeps the values that the user typed. A root `ErrorBoundary` shows a retry screen instead of a white screen, and sends the error to Sentry. Without a DSN, Sentry sends nothing.
+- **Logging**: `console.*` is a lint error. `src/utils/logger.ts` is the only logger.
+- **Offline**: the app stores the read cache in MMKV for 7 days. Thus the tabs open with the last data and an offline banner. The app does **not** queue orders while it is offline. This is intentional, see [`docs/offline.md`](docs/offline.md). The submit button is disabled while the device is offline and while a request is in progress.
+- **Validation at the boundary**: if the instrument list has a bad shape, the screen shows one `shape` error with a retry button. It does not show `NaN` on one row. Set the bug level to `hard` to see this.
 
 ### Component organization
 
-- `src/screens/<Name>Screen/`: the screen, its `styles.ts`, and `hooks/` + `components/` that only it uses (`useMarketList`, `InstrumentRow`, `OrderResult`...). Shared building blocks live in `src/components/` (`Text`, `Button`, `SegmentedControl`, `TextField`, `QueryStateView`, `StatusChip`, `DeltaText`, `Icon`...). A component is promoted to `src/components` only when a second screen needs it.
-- Styles come from typed tokens in `src/theme` through `StyleSheet.create`; a hex literal outside the theme, an inline style object, a raw string in JSX or a touchable without accessibility props is a **lint error**, not a code-review comment. Screens are capped at 400 lines by lint.
-- Navigation is React Navigation: four tabs plus a native stack whose only extra route is the order sheet, presented as a modal. Route params are ids; prices and holdings come from the query cache.
+- A screen folder `src/screens/<Name>Screen/` holds the screen, its `styles.ts`, and the `hooks/` and `components/` that only this screen uses (for example `useMarketList`, `InstrumentRow`, `MoverCard`, `HeaderBand`).
+- `src/components/` holds the shared building blocks: `Text`, `Button`, `SegmentedControl`, `TextField`, `QueryStateView`, `StatusChip`, `DeltaText`, `Icon` and others. A component moves to `src/components` only when a second screen needs it.
+- Styles use typed tokens from `src/theme` through `StyleSheet.create`. These are **lint errors**: a hex color outside the theme, an inline style object, a raw string in JSX, and a touchable without accessibility props. A lint rule also limits each screen to 400 lines.
+- Navigation uses React Navigation: four tabs (Portfolio, Market, Orders, Account) and a native stack. The stack has two modal routes: the order sheet and the order detail. Route params contain ids only. The screens read prices, holdings and orders from the query cache.
 
 ### Testing strategy
 
-- **Vitest, Node, logic only** (47 tests): money math, derived metrics, the order form derivation, zod schemas, the HTTP client (headers, every error kind, timeout and abort via mocked `fetch`), and `tests/platform.test.ts`, which reads source files to catch device-only mistakes (i18n must be the first import, cleartext traffic placeholder intact, every env key present in `.env`).
-- **Maestro** for screens, driven by `scripts/run-app.sh`, which boots a simulator, builds the debug app if needed and leaves screenshots at a fixed path. No snapshot tests: they break on every visual change and prove little.
-- `pnpm verify` runs in the pre-commit hook (`.githooks/pre-commit`, plus gitleaks when installed) and in GitHub Actions (`verify:full`).
+- **Vitest in Node, for logic only** (54 tests). The tests cover money math, derived values, the order form and the zod schemas. They also cover the HTTP client with a mock `fetch`: headers, each error kind, timeout and abort.
+- `tests/platform.test.ts` reads source files and finds errors that occur only on a device. For example: i18n must be the first import, the cleartext-traffic placeholder must stay in the Android manifest, and each env key must be in `.env`.
+- **Maestro** tests the screens. `scripts/run-app.sh` starts a simulator, builds the debug app if necessary, runs a flow and saves the screenshots at a fixed path. The project has no snapshot tests: they break on each visual change and prove little.
+- `pnpm verify` runs in the pre-commit hook (`.githooks/pre-commit`, with gitleaks when it is installed). GitHub Actions runs `pnpm verify:full`.
 
 ### Internationalization
 
-Spanish is the default (Argentine reviewers, prices in ARS); English mirrors every key. Keys are typed from `es.json`, so a missing key fails `tsc`. Plurals use i18next's `_one`/`_other` forms.
+Spanish is the default language, because the prices are in ARS. English has the same keys. The key type comes from `es.json`, so a missing key is a `tsc` error. Plurals use the i18next `_one` and `_other` forms.
+
+## Limitations
+
+These are known limits. Some come from the API and some are scope choices.
+
+- **No order cancel.** The API has no endpoint to cancel a `PENDING` order.
+- **No rejection reason.** The API does not say why it rejected an order. The order detail lists the usual causes and does not select one.
+- **No real-time prices.** Prices change only when the app fetches them again (pull-to-refresh, app focus, reconnect). Only the orders list polls, and only while an order is `PENDING`.
+- **No offline orders.** See [`docs/offline.md`](docs/offline.md).
+- **No confirmation step.** A MARKET order goes to the API when the user taps submit. The price can be different from the price on the screen.
+- **Whole shares only.** An order by ARS amount sends the largest whole number of shares that the amount can buy at the last price. The app does not support fractional shares.
+- **No login.** The candidate id identifies the account. Any person who knows an id can use that account.
+- **No dark mode and no tablet layout.** The iOS project allows iPad, but nobody tested the layout on a tablet.
+- **No release pipeline.** CI runs the checks and builds the JS bundles. It does not sign or upload a build. Maestro does not run in CI. [`docs/production-checklist.md`](docs/production-checklist.md) lists the work that a store release needs.
+- **Few screen tests.** Three Maestro flows cover the main paths on iOS. The error states have no automatic test. Use the bug levels to check them manually.
+
+## Notes on the API
+
+These are observations from development. The bug level was `off` unless a line says something different.
+
+- Each endpoint needs the `X-Enable-Bugs` header. `/portfolio`, `/orders` and `/reset` also need `X-Candidate-Id`. The React Native brief does not mention these headers. The QA brief in the same repository documents them.
+- The portfolio is `{ cash, holdings[] }` for each candidate. The API calculates it from the `FILLED` orders and subtracts the cash reserved by `PENDING` orders. A holding has no `name`. The app gets the name from the cached instrument list.
+- `POST /orders` returns `201` for a MARKET order and `200` at some bug levels. The app checks only `ok`. A 4xx body is `{ "error": "..." }`, and the app shows that text without changes.
+- At the `easy` level, the portfolio can be out of date. At the `hard` level, a MARKET order fills at `close_price` instead of `last_price`. These levels are good inputs to test the error states.
+
+## Next steps
+
+- A confirmation step with a warning when the price changes.
+- Cancel for `PENDING` LIMIT orders (this needs a new API endpoint).
+- An instrument detail screen with a price chart.
+- Real-time prices.
+- Dark mode.
+- A release pipeline (fastlane or EAS) with source maps, and the items in [`docs/production-checklist.md`](docs/production-checklist.md).
+- Maestro in CI on a simulator.
 
 ## Project structure
 
@@ -103,7 +161,7 @@ Spanish is the default (Argentine reviewers, prices in ARS); English mirrors eve
 App.tsx                      i18n first, crash reporting, providers, error boundary, navigator
 src/
   navigation/                RootNavigator.tsx (tabs + modal stack), types.ts
-  screens/                   MarketScreen · PortfolioScreen · OrdersScreen · OrderSheetScreen · AccountScreen
+  screens/                   PortfolioScreen · MarketScreen · OrdersScreen · OrderSheetScreen · OrderDetailScreen · AccountScreen
   components/                shared UI: Text, Button, SegmentedControl, TextField, Card, Screen, QueryStateView, ...
   api/                       client.ts (the only fetch), queryClient.ts (persistence, online/focus), queryKeys.ts, <resource>Api.ts
   schemas/                   zod: raw API shape → app shape (camelCase, cents)
@@ -120,20 +178,3 @@ scripts/                     verify.sh, run-app.sh, setup-hooks.sh
 docs/                        decisions.md, offline.md, production-checklist.md
 AGENTS.md                    working rules for humans and AI agents in this repo
 ```
-
-## Notes on the API
-
-Observed while building (with `X-Enable-Bugs: off` unless noted):
-
-- Every endpoint needs `X-Enable-Bugs`; `/portfolio`, `/orders`, `/reset` also need `X-Candidate-Id`. Neither header is in the React Native brief; they are documented in the QA brief of the same repo.
-- Portfolio is `{ cash, holdings[] }` per candidate, derived from `FILLED` orders and net of `PENDING` reservations. Holdings have no `name`; the app joins them with the cached instrument list.
-- `POST /orders` answers `201` for MARKET and `200` in some bug levels; the app only cares about `ok`. 4xx bodies are `{ "error": "..." }` and are shown verbatim.
-- `easy` returns stale portfolio reads; `hard` fills MARKET orders at `close_price` instead of `last_price`. Good inputs for the error states and for the QA story.
-
-## What I would do next
-
-Order confirmation step with a price-change warning · cancel a `PENDING` LIMIT order (the API has no endpoint) · instrument detail with a price chart · real-time prices · dark mode · a release pipeline (fastlane or EAS) with source maps and the items in [`docs/production-checklist.md`](docs/production-checklist.md) · Maestro in CI on a simulator.
-
-## About this attempt
-
-This is a second take on the same challenge. The feedback on the [2024 version](https://github.com/steppannws/sierra-vest) was: clear UI/UX, but components could be organized better, derived state was stored instead of computed, and the README was generic. This repo is built around those three points: screen-scoped folders with lint-enforced rules, one source of truth with pure derivations, and this document.
