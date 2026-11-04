@@ -5,7 +5,7 @@ import type { Cents } from './money';
 export const dailyReturn = (lastPriceCents: Cents, closePriceCents: Cents): number | null =>
   closePriceCents > 0 ? (lastPriceCents - closePriceCents) / closePriceCents : null;
 
-export type HoldingMetrics = {
+type HoldingMetrics = {
   marketValueCents: Cents;
   costCents: Cents;
   pnlCents: Cents;

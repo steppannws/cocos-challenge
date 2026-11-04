@@ -9,7 +9,6 @@ export class ApiError extends Error {
     readonly kind: ApiErrorKind,
     message: string,
     readonly status = 0,
-    readonly body?: unknown,
   ) {
     super(message);
     this.name = 'ApiError';
@@ -86,17 +85,12 @@ export async function request<T>(
   const json = text.length > 0 ? parseJson(text) : undefined;
 
   if (!response.ok) {
-    throw new ApiError(
-      'http',
-      errorMessage(json, `HTTP ${response.status}`),
-      response.status,
-      json,
-    );
+    throw new ApiError('http', errorMessage(json, `HTTP ${response.status}`), response.status);
   }
 
   const parsed = schema.safeParse(json);
   if (!parsed.success) {
-    throw new ApiError('shape', parsed.error.message, response.status, json);
+    throw new ApiError('shape', parsed.error.message, response.status);
   }
   return parsed.data;
 }
