@@ -1,10 +1,17 @@
-# Market → search → order sheet → MARKET BUY of 2 shares → result → Portfolio → Orders → Account.
+# Portfolio → Market → search → order sheet → MARKET BUY of 2 shares → result → Portfolio → Orders → order detail → Account.
 # Needs the API online and a candidate with cash (the default .env candidate starts with 1,000,000 ARS).
 # No hideKeyboard: on iOS Maestro implements it with a blind tap. Taps on a title dismiss it instead.
 appId: ${APP_ID}
 ---
 - launchApp:
     clearState: true
+# Portfolio is the first tab: the app opens there.
+- extendedWaitUntil:
+    visible:
+      id: 'portfolio-screen'
+    timeout: 120000
+- tapOn:
+    id: 'tab-market'
 - extendedWaitUntil:
     visible:
       id: 'market-screen'
@@ -71,6 +78,20 @@ appId: ${APP_ID}
       id: 'orders-list'
     timeout: 30000
 - takeScreenshot: orders
+- tapOn:
+    id: 'order-row-[0-9]+'
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: 'order-detail-status'
+    timeout: 15000
+- takeScreenshot: order-detail
+- tapOn:
+    id: 'order-detail-close'
+- extendedWaitUntil:
+    notVisible:
+      id: 'order-detail'
+    timeout: 10000
 - tapOn:
     id: 'tab-account'
 - extendedWaitUntil:
