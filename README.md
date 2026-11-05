@@ -141,7 +141,7 @@ These are known limits. Some come from the API and some are scope choices.
 - **No real-time prices.** Prices change only when the app fetches them again (pull-to-refresh, app focus, reconnect). Only the orders list polls, and only while an order is `PENDING`.
 - **No offline orders.** See [`docs/offline.md`](docs/offline.md).
 - **No confirmation step.** A MARKET order goes to the API when the user taps submit. The price can be different from the price on the screen.
-- **Whole shares only.** An order by ARS amount sends the largest whole number of shares that the amount can buy at the last price. The app does not support fractional shares.
+- **Whole shares only.** An order by ARS amount sends the largest whole number of shares that the amount can buy at the last price (MARKET) or at the limit price (LIMIT). The app does not support fractional shares.
 - **No login.** The candidate id identifies the account. Any person who knows an id can use that account.
 - **No tablet layout.** The iOS project allows iPad, but nobody tested the layout on a tablet.
 - **Dark mode was checked on iOS only.** The floating tab bar over the Android navigation bar and the Android status bar colors still need a pass on a device.
@@ -163,7 +163,6 @@ These are observations from development. The bug level was `off` unless a line s
 - Cancel for `PENDING` LIMIT orders (this needs a new API endpoint).
 - An instrument detail screen with a price chart.
 - Real-time prices.
-- Dark mode.
 - A release pipeline (fastlane or EAS) with source maps, and the items in [`docs/production-checklist.md`](docs/production-checklist.md).
 - Maestro in CI on a simulator.
 

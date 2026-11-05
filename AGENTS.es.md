@@ -45,7 +45,7 @@ src/
   offline/storage.ts    la instancia de MMKV detrás de la caché de queries y del store de sesión
   store/session.ts      solo estado de cliente (candidate id, nivel de bugs). Los datos del servidor nunca van acá
   i18n/                 index.ts · i18next.d.ts (claves tipadas) · locales/es.json · locales/en.json
-  theme/index.ts        el único lugar donde se definen colores, espaciados, fuentes y radios
+  theme/                palettes.ts: el único lugar donde se definen colores, espaciados, fuentes y radios (claro + oscuro) · useTheme.ts: useTheme, makeStyles
   utils/                funciones puras, test al lado: format.ts + format.test.ts
   config/env.ts         lee react-native-config una vez, validado con zod
 tests/                  platform.test.ts y tests transversales
@@ -72,6 +72,7 @@ Nombres: PascalCase para componentes y pantallas, camelCase para todo lo demás 
 
 **UI**
 - Colores, espaciados, tamaños de fuente: solo tokens de `@/theme`. Un literal hex fuera de `src/theme` es un error de lint.
+- Claro y oscuro: `styles.ts` exporta `useStyles = makeStyles((colors) => StyleSheet.create(...))`; los colores inline salen de `useTheme().colors`. Nunca importar una paleta directo en un componente.
 - Cada string visible para el usuario pasa por `t('key')`. Un string crudo en JSX es un error de lint. Agregar la clave a `es.json` y `en.json`; una clave que falta en `es.json` rompe el typecheck.
 - `StyleSheet.create` en `styles.ts`. Sin objetos de estilo inline, salvo para valores calculados en runtime (error de lint).
 - Cada touchable tiene `accessibilityRole` y `accessibilityLabel` (error de lint). Cada lista tiene un estado vacío, un estado de carga y un estado de error con reintento (`QueryStateView`).
