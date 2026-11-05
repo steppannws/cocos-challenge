@@ -1,21 +1,21 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
+  TextInput,
   useWindowDimensions,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ApiError } from '@/api/client';
 import { Button } from '@/components/Button';
-import { Card } from '@/components/Card';
+import { DeltaText } from '@/components/DeltaText';
 import { ErrorState } from '@/components/ErrorState';
 import { Icon } from '@/components/Icon';
-import { KeyValueRow } from '@/components/KeyValueRow';
 import { Screen } from '@/components/Screen';
 import { SegmentedControl, type SegmentOption } from '@/components/SegmentedControl';
 import { Text } from '@/components/Text';
@@ -28,12 +28,15 @@ import { usePlaceOrder } from '@/hooks/useOrders';
 import { usePortfolio } from '@/hooks/usePortfolio';
 import type { RootStackParamList } from '@/navigation/types';
 import type { OrderSide, OrderType } from '@/schemas/order';
-import { colors } from '@/theme';
-import { formatMoney } from '@/utils/format';
+import { useTheme } from '@/theme';
+import { formatMoney, formatPercent } from '@/utils/format';
+import { dailyReturn } from '@/utils/portfolio';
 import { OrderResult } from './components/OrderResult';
+import { OrderSummary } from './components/OrderSummary';
+import { QuickPicks } from './components/QuickPicks';
 import { useOrderForm } from './hooks/useOrderForm';
-import type { OrderFormContext, OrderMode } from './orderForm';
-import { styles } from './styles';
+import { type OrderFormContext, quickPicks } from './orderForm';
+import { useStyles } from './styles';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'OrderSheet'>;
 
@@ -42,6 +45,8 @@ export function OrderSheetScreen({ route, navigation }: Props) {
   const { t } = useTranslation();
   const locale = useLocale();
   const isOnline = useIsOnline();
+  const { styles } = useStyles();
+  const { colors } = useTheme();
   // KeyboardAvoidingView compares its layout frame (relative to the parent) with the keyboard's
   // window position, so it needs the distance from the window top to the parent: the sheet's top
   // offset on iOS, the status bar on Android (edge-to-edge, so adjustResize does nothing). Fabric
@@ -55,15 +60,17 @@ export function OrderSheetScreen({ route, navigation }: Props) {
   const instrument = instruments.data?.find((item) => item.id === instrumentId);
   const holding = portfolio.data?.holdings.find((item) => item.instrumentId === instrumentId);
   const lastPriceCents = instrument?.lastPriceCents ?? holding?.lastPriceCents ?? 0;
+  const change = instrument
+    ? dailyReturn(instrument.lastPriceCents, instrument.closePriceCents)
+    : null;
 
-  const ctx = useMemo<OrderFormContext>(
-    () => ({
-      lastPriceCents,
-      availableCashCents: portfolio.data?.cashCents ?? null,
-      availableShares: portfolio.data ? (holding?.quantity ?? 0) : null,
-    }),
-    [lastPriceCents, portfolio.data, holding?.quantity],
-  );
+  // Not memoized: deriveOrder is a few multiplications, and a useMemo here trips the
+  // react-hooks lint once ctx is also passed to plain functions (quickPicks, OrderSummary).
+  const ctx: OrderFormContext = {
+    lastPriceCents,
+    availableCashCents: portfolio.data?.cashCents ?? null,
+    availableShares: portfolio.data ? (holding?.quantity ?? 0) : null,
+  };
   const form = useOrderForm(initialSide, ctx);
   const { values, derived, visibleErrors } = form;
   const placeOrder = usePlaceOrder();
@@ -75,10 +82,6 @@ export function OrderSheetScreen({ route, navigation }: Props) {
   const typeOptions: readonly SegmentOption<OrderType>[] = [
     { value: 'MARKET', label: t('orders.type.MARKET') },
     { value: 'LIMIT', label: t('orders.type.LIMIT') },
-  ];
-  const modeOptions: readonly SegmentOption<OrderMode>[] = [
-    { value: 'quantity', label: t('order.mode.quantity') },
-    { value: 'amount', label: t('order.mode.amount') },
   ];
 
   const canSubmit = derived.isValid && isOnline && lastPriceCents > 0 && !placeOrder.isPending;
@@ -95,6 +98,18 @@ export function OrderSheetScreen({ route, navigation }: Props) {
     });
   };
 
+  const byAmount = values.mode === 'amount';
+  const field = byAmount ? 'amount' : 'quantity';
+  const picks = quickPicks(values, ctx, derived.unitPriceCents).map((pick) => ({
+    ...pick,
+    disabled: pick.next === null,
+    onPress: () => {
+      if (pick.next !== null) {
+        form.set(field, pick.next);
+      }
+    },
+  }));
+
   const availability =
     values.side === 'BUY'
       ? ctx.availableCashCents !== null
@@ -104,10 +119,7 @@ export function OrderSheetScreen({ route, navigation }: Props) {
         ? t('order.availableShares', { count: ctx.availableShares })
         : undefined;
 
-  const errorText = (key: keyof typeof visibleErrors) => {
-    const code = visibleErrors[key];
-    return code ? t(`order.errors.${code}`) : undefined;
-  };
+  const fieldError = visibleErrors[field];
 
   return (
     <Screen testID="order-sheet" edges={Platform.OS === 'ios' ? ['bottom'] : ['top', 'bottom']}>
@@ -124,11 +136,18 @@ export function OrderSheetScreen({ route, navigation }: Props) {
               <Text variant="heading" testID="order-title">
                 {t('order.title', { ticker })}
               </Text>
-              <Text variant="caption" numberOfLines={1}>
-                {instrument?.name ?? ''}
-                {instrument?.name ? ' · ' : ''}
-                {t('order.lastPrice', { price: formatMoney(lastPriceCents, locale) })}
-              </Text>
+              <View style={styles.subtitle}>
+                <Text variant="caption" numberOfLines={1}>
+                  {t('order.lastPrice', { price: formatMoney(lastPriceCents, locale) })}
+                </Text>
+                {change !== null ? (
+                  <DeltaText
+                    value={change}
+                    text={formatPercent(change, locale)}
+                    variant="captionStrong"
+                  />
+                ) : null}
+              </View>
             </View>
             <Pressable
               accessibilityRole="button"
@@ -152,32 +171,25 @@ export function OrderSheetScreen({ route, navigation }: Props) {
             />
           ) : (
             <>
-              <View style={styles.field}>
-                <Text variant="label">{t('order.side')}</Text>
-                <SegmentedControl
-                  options={sideOptions}
-                  value={values.side}
-                  onChange={(side) => form.set('side', side)}
-                  testID="order-side"
-                />
-                {availability ? (
-                  <Text variant="caption" style={styles.hint} testID="order-availability">
-                    {availability}
-                  </Text>
-                ) : null}
-              </View>
-
-              <View style={styles.field}>
-                <Text variant="label">{t('order.type')}</Text>
-                <SegmentedControl
-                  options={typeOptions}
-                  value={values.type}
-                  onChange={(type) => form.set('type', type)}
-                  testID="order-type"
-                />
-                <Text variant="caption" style={styles.hint}>
-                  {t(`order.typeHint.${values.type}`)}
-                </Text>
+              <View style={styles.controls}>
+                <View style={styles.side}>
+                  <SegmentedControl
+                    pill
+                    options={sideOptions}
+                    value={values.side}
+                    onChange={(side) => form.set('side', side)}
+                    testID="order-side"
+                  />
+                </View>
+                <View style={styles.type}>
+                  <SegmentedControl
+                    pill
+                    options={typeOptions}
+                    value={values.type}
+                    onChange={(type) => form.set('type', type)}
+                    testID="order-type"
+                  />
+                </View>
               </View>
 
               {values.type === 'LIMIT' ? (
@@ -186,65 +198,71 @@ export function OrderSheetScreen({ route, navigation }: Props) {
                   value={values.price}
                   onChangeText={(price) => form.set('price', price)}
                   keyboardType="decimal-pad"
-                  error={errorText('price')}
+                  error={visibleErrors.price ? t(`order.errors.${visibleErrors.price}`) : undefined}
                   testID="order-price"
                 />
               ) : null}
 
-              <View style={styles.field}>
-                <SegmentedControl
-                  options={modeOptions}
-                  value={values.mode}
-                  onChange={(mode) => form.set('mode', mode)}
-                  testID="order-mode"
+              <View style={styles.amount}>
+                <Text variant="caption">
+                  {byAmount
+                    ? t(values.side === 'BUY' ? 'order.youInvest' : 'order.youSell')
+                    : t('order.quantityLabel')}
+                </Text>
+                <TextInput
+                  value={byAmount ? values.amount : values.quantity}
+                  onChangeText={(text) => form.set(field, text)}
+                  keyboardType={byAmount ? 'decimal-pad' : 'number-pad'}
+                  placeholder="0"
+                  placeholderTextColor={colors.textMuted}
+                  accessibilityLabel={t(byAmount ? 'order.amountLabel' : 'order.quantityLabel')}
+                  style={styles.amountInput}
+                  testID={byAmount ? 'order-amount' : 'order-quantity'}
                 />
-                {values.mode === 'quantity' ? (
-                  <TextField
-                    label={t('order.quantityLabel')}
-                    value={values.quantity}
-                    onChangeText={(quantity) => form.set('quantity', quantity)}
-                    keyboardType="number-pad"
-                    large
-                    placeholder="0"
-                    error={errorText('quantity')}
-                    testID="order-quantity"
-                  />
-                ) : (
-                  <TextField
-                    label={t('order.amountLabel')}
-                    value={values.amount}
-                    onChangeText={(amount) => form.set('amount', amount)}
-                    keyboardType="decimal-pad"
-                    large
-                    placeholder="0"
-                    error={errorText('amount')}
-                    hint={
-                      derived.quantity > 0
-                        ? t('order.maxShares', { count: derived.quantity })
-                        : undefined
-                    }
-                    testID="order-amount"
-                  />
-                )}
+                {fieldError ? (
+                  <Text variant="caption" color="loss" style={styles.centered}>
+                    {t(`order.errors.${fieldError}`)}
+                  </Text>
+                ) : null}
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={t(
+                    byAmount ? 'order.switchToQuantity' : 'order.switchToAmount',
+                  )}
+                  onPress={() => form.set('mode', byAmount ? 'quantity' : 'amount')}
+                  style={styles.swap}
+                  testID={byAmount ? 'order-mode-quantity' : 'order-mode-amount'}
+                >
+                  <Text variant="captionStrong" color="gain">
+                    {byAmount
+                      ? t('order.approxShares', {
+                          count: derived.quantity,
+                          total: formatMoney(derived.totalCents, locale),
+                        })
+                      : formatMoney(derived.totalCents, locale)}
+                  </Text>
+                  <Icon name="swap" size={14} color={colors.gain} />
+                </Pressable>
               </View>
+
+              <QuickPicks picks={picks} />
+              {availability ? (
+                <Text variant="caption" style={styles.centered} testID="order-availability">
+                  {availability}
+                </Text>
+              ) : null}
             </>
           )}
         </ScrollView>
         {/* Outside the scroll view so the total and the button stay visible above the keyboard. */}
         {placeOrder.isSuccess ? null : (
           <View style={styles.footer}>
-            <Card style={styles.summary}>
-              <KeyValueRow
-                label={t('order.estimatedTotal')}
-                value={formatMoney(derived.totalCents, locale)}
-                testID="order-total"
-              />
-              {visibleErrors.form ? (
-                <Text variant="caption" color="loss" testID="order-form-error">
-                  {t(`order.errors.${visibleErrors.form}`)}
-                </Text>
-              ) : null}
-            </Card>
+            <OrderSummary
+              values={values}
+              derived={derived}
+              ctx={ctx}
+              formError={visibleErrors.form}
+            />
 
             {placeOrder.isError ? (
               // No idempotency key: after a timeout or dropped connection the server may have
@@ -276,6 +294,9 @@ export function OrderSheetScreen({ route, navigation }: Props) {
               loading={placeOrder.isPending}
               testID="order-submit"
             />
+            <Text variant="caption" style={styles.centered}>
+              {t(`order.typeHint.${values.type}`)}
+            </Text>
           </View>
         )}
       </KeyboardAvoidingView>

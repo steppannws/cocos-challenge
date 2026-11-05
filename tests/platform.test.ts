@@ -3,7 +3,8 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath, URL } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { colors } from '@/theme';
+// The palette file, not '@/theme': that also exports hooks, which import react-native.
+import { brand } from '@/theme/palettes';
 
 /**
  * Device-only assumptions that Node tests cannot see.
@@ -50,6 +51,6 @@ describe('platform requirements', () => {
     const manifest = JSON.parse(read('src/assets/bootsplash/manifest.json')) as {
       background: string;
     };
-    expect(manifest.background.toUpperCase()).toBe(colors.heroTop.toUpperCase());
+    expect(manifest.background.toUpperCase()).toBe(brand.navy.toUpperCase());
   });
 });

@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   FlatList,
@@ -17,20 +17,28 @@ import { SectionHeader } from '@/components/SectionHeader';
 import { useRefresh } from '@/hooks/useRefresh';
 import { Text } from '@/components/Text';
 import type { Instrument } from '@/schemas/instrument';
-import { colors } from '@/theme';
+import { useTabBarSpace } from '@/navigation/FloatingTabBar';
+import { useTheme } from '@/theme';
 import { topMovers } from '@/utils/portfolio';
 import { InstrumentRow } from './components/InstrumentRow';
 import { MoverCard } from './components/MoverCard';
 import { useMarketList } from './hooks/useMarketList';
-import { moverStyles, styles } from './styles';
+import { useStyles } from './styles';
 
 const keyExtractor = (item: Instrument) => String(item.id);
+
+type Direction = 'gainers' | 'losers';
+const directions: readonly Direction[] = ['gainers', 'losers'];
 
 export function MarketScreen() {
   const { t } = useTranslation();
   const navigation = useNavigation();
   const market = useMarketList();
   const { refreshing, onRefresh } = useRefresh(market.refetch);
+  const { styles, moverStyles } = useStyles();
+  const { colors } = useTheme();
+  const tabBarSpace = useTabBarSpace();
+  const [direction, setDirection] = useState<Direction>('gainers');
 
   const openOrder = useCallback(
     (instrument: Instrument) => {
@@ -43,8 +51,8 @@ export function MarketScreen() {
   );
 
   const movers = useMemo(
-    () => (market.isSearching ? [] : topMovers(market.items)),
-    [market.isSearching, market.items],
+    () => (market.isSearching ? [] : topMovers(market.items, 5, direction)),
+    [market.isSearching, market.items, direction],
   );
 
   return (
@@ -86,9 +94,31 @@ export function MarketScreen() {
         keyExtractor={keyExtractor}
         renderItem={({ item }) => <InstrumentRow instrument={item} onPress={openOrder} />}
         ListHeaderComponent={
-          movers.length > 0 ? (
+          market.isSearching || market.items.length === 0 ? undefined : (
             <View>
-              <SectionHeader title={t('market.topMovers')} />
+              <View style={styles.moversHeader}>
+                <Text variant="heading">{t('market.topMovers')}</Text>
+                <View style={styles.toggle} accessibilityRole="radiogroup">
+                  {directions.map((value) => {
+                    const selected = value === direction;
+                    return (
+                      <Pressable
+                        key={value}
+                        accessibilityRole="radio"
+                        accessibilityLabel={t(`market.${value}`)}
+                        accessibilityState={{ selected, checked: selected }}
+                        onPress={() => setDirection(value)}
+                        style={[styles.toggleOption, selected && styles.toggleSelected]}
+                        testID={`market-movers-${value}`}
+                      >
+                        <Text variant="captionStrong" color={selected ? 'text' : 'textMuted'}>
+                          {t(`market.${value}`)}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </View>
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
@@ -101,9 +131,9 @@ export function MarketScreen() {
               </ScrollView>
               <SectionHeader title={t('market.allStocks')} detail={String(market.items.length)} />
             </View>
-          ) : undefined
+          )
         }
-        contentContainerStyle={styles.list}
+        contentContainerStyle={{ paddingBottom: tabBarSpace }}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
         refreshControl={

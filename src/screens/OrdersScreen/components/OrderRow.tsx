@@ -6,22 +6,24 @@ import { Text } from '@/components/Text';
 import { TickerAvatar } from '@/components/TickerAvatar';
 import { useLocale } from '@/hooks/useLocale';
 import type { Order } from '@/schemas/order';
-import { formatDateTime, formatMoney, formatQuantity } from '@/utils/format';
+import { formatMoney, formatQuantity, formatTime } from '@/utils/format';
 import { orderTotalCents } from '@/utils/orders';
-import { rowStyles as styles } from '../styles';
+import { useStyles } from '../styles';
 
 type Props = { order: Order; ticker: string; onPress: (order: Order) => void };
 
+// The day is the section header, so the row shows only the time, next to the side.
 export const OrderRow = memo(function OrderRow({ order, ticker, onPress }: Props) {
   const { t } = useTranslation();
   const locale = useLocale();
-  const side = t(`orders.side.${order.side}`);
+  const { rowStyles: styles } = useStyles();
+  const time = formatTime(order.createdAt, locale);
   const type = t(`orders.type.${order.type}`);
   const quantity = formatQuantity(order.quantity, locale);
   const line =
     order.priceCents === null
-      ? t('orders.lineNoPrice', { side, type, quantity })
-      : t('orders.line', { side, type, quantity, price: formatMoney(order.priceCents, locale) });
+      ? t('orders.rowLineNoPrice', { type, quantity })
+      : t('orders.rowLine', { type, quantity, price: formatMoney(order.priceCents, locale) });
   return (
     <Pressable
       accessibilityRole="button"
@@ -35,22 +37,24 @@ export const OrderRow = memo(function OrderRow({ order, ticker, onPress }: Props
     >
       <TickerAvatar ticker={ticker} />
       <View style={styles.main}>
-        <Text variant="bodyStrong">{ticker}</Text>
+        <View style={styles.title}>
+          <Text variant="bodyStrong">{ticker}</Text>
+          <Text variant="captionStrong" color={order.side === 'BUY' ? 'gain' : 'loss'}>
+            {t(`orders.side.${order.side}`)}
+          </Text>
+          <Text variant="caption">{time}</Text>
+        </View>
         <Text variant="caption" numberOfLines={1}>
           {line}
         </Text>
-        <Text
-          variant="caption"
-          numberOfLines={1}
-        >{`${formatDateTime(order.createdAt, locale)} · ${t('orders.orderId', { id: order.id })}`}</Text>
       </View>
       <View style={styles.trailing}>
-        <StatusChip status={order.status} testID={`order-row-${order.id}-status`} />
         {order.priceCents !== null ? (
-          <Text variant="captionStrong">
+          <Text variant="bodyStrong">
             {formatMoney(orderTotalCents(order.quantity, order.priceCents), locale)}
           </Text>
         ) : null}
+        <StatusChip status={order.status} testID={`order-row-${order.id}-status`} />
       </View>
     </Pressable>
   );

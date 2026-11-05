@@ -4,9 +4,10 @@ import { View } from 'react-native';
 import { Button } from '@/components/Button';
 import { Text } from '@/components/Text';
 import { logger } from '@/utils/logger';
-import { styles } from './styles';
+import { useStyles } from './styles';
 
 function Fallback({ onRetry }: { onRetry: () => void }) {
+  const styles = useStyles();
   const { t } = useTranslation();
   return (
     <View style={styles.container} testID="error-boundary">

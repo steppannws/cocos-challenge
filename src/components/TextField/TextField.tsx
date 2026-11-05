@@ -1,7 +1,7 @@
 import { TextInput, type TextInputProps, View } from 'react-native';
 import { Text } from '@/components/Text';
-import { colors } from '@/theme';
-import { styles } from './styles';
+import { useTheme } from '@/theme';
+import { useStyles } from './styles';
 
 type Props = Omit<TextInputProps, 'style'> & {
   label: string;
@@ -12,6 +12,8 @@ type Props = Omit<TextInputProps, 'style'> & {
 };
 
 export function TextField({ label, error, hint, large = false, ...input }: Props) {
+  const styles = useStyles();
+  const { colors } = useTheme();
   return (
     <View style={styles.container}>
       <Text variant="label">{label}</Text>

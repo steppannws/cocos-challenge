@@ -15,20 +15,22 @@ import { useLocale } from '@/hooks/useLocale';
 import { useOrders } from '@/hooks/useOrders';
 import type { RootStackParamList } from '@/navigation/types';
 import type { OrderStatus } from '@/schemas/order';
-import { colors } from '@/theme';
+import { type Color, useTheme } from '@/theme';
 import { formatDateTime, formatMoney, formatQuantity } from '@/utils/format';
 import { orderTotalCents } from '@/utils/orders';
-import { styles } from './styles';
+import { useStyles } from './styles';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'OrderDetail'>;
 
-const statusIcon: Record<OrderStatus, { name: IconName; color: string }> = {
-  FILLED: { name: 'check', color: colors.gain },
-  PENDING: { name: 'clock', color: colors.warning },
-  REJECTED: { name: 'alert', color: colors.loss },
+const statusIcon: Record<OrderStatus, { name: IconName; color: Color }> = {
+  FILLED: { name: 'check', color: 'gain' },
+  PENDING: { name: 'clock', color: 'warning' },
+  REJECTED: { name: 'alert', color: 'loss' },
 };
 
 export function OrderDetailScreen({ route, navigation }: Props) {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const { orderId } = route.params;
   const { t } = useTranslation();
   const locale = useLocale();
@@ -118,7 +120,7 @@ export function OrderDetailScreen({ route, navigation }: Props) {
             <Icon
               name={statusIcon[order.status].name}
               size={20}
-              color={statusIcon[order.status].color}
+              color={colors[statusIcon[order.status].color]}
             />
             <Text variant="bodyStrong">{t(`orderDetail.explanationTitle.${order.status}`)}</Text>
           </View>

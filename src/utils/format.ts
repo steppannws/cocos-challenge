@@ -20,19 +20,26 @@ const numberFormat = (locale: Locale, kind: keyof typeof numberOptions): Intl.Nu
   return f;
 };
 
-const dateFormats = new Map<Locale, Intl.DateTimeFormat>();
-const dateFormat = (locale: Locale): Intl.DateTimeFormat => {
-  let f = dateFormats.get(locale);
+// Explicit parts instead of dateStyle, which Hermes does not support everywhere.
+const dateOptions = {
+  dateTime: {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  },
+  date: { day: '2-digit', month: '2-digit', year: 'numeric' },
+  time: { hour: '2-digit', minute: '2-digit' },
+} satisfies Record<string, Intl.DateTimeFormatOptions>;
+
+const dateFormats = new Map<string, Intl.DateTimeFormat>();
+const dateFormat = (locale: Locale, kind: keyof typeof dateOptions): Intl.DateTimeFormat => {
+  const key = `${locale}:${kind}`;
+  let f = dateFormats.get(key);
   if (!f) {
-    // Explicit parts instead of dateStyle, which Hermes does not support everywhere.
-    f = new Intl.DateTimeFormat(locale, {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-    dateFormats.set(locale, f);
+    f = new Intl.DateTimeFormat(locale, dateOptions[kind]);
+    dateFormats.set(key, f);
   }
   return f;
 };
@@ -71,7 +78,12 @@ export const formatQuantity = (quantity: number, locale: Locale) =>
   numberFormat(locale, 'quantity').format(quantity);
 
 // ISO 8601 from the API.
-export const formatDateTime = (iso: string, locale: Locale): string => {
+const formatIso = (iso: string, locale: Locale, kind: keyof typeof dateOptions): string => {
   const date = new Date(iso);
-  return Number.isNaN(date.getTime()) ? '—' : dateFormat(locale).format(date);
+  return Number.isNaN(date.getTime()) ? '—' : dateFormat(locale, kind).format(date);
 };
+
+export const formatDateTime = (iso: string, locale: Locale) => formatIso(iso, locale, 'dateTime');
+/** Day only, in the device time zone: also the key Orders groups its rows by. */
+export const formatDate = (iso: string, locale: Locale) => formatIso(iso, locale, 'date');
+export const formatTime = (iso: string, locale: Locale) => formatIso(iso, locale, 'time');

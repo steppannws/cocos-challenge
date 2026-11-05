@@ -7,7 +7,8 @@ A broker app for the [Cocos Capital React Native challenge](https://github.com/c
 - see the instrument list and search it by ticker,
 - see the portfolio with market value, P&L and return,
 - send BUY and SELL orders (MARKET or LIMIT, by quantity or by ARS amount),
-- follow the status of each order.
+- follow the status of each order,
+- switch between a light and a dark theme.
 
 Stack: bare React Native 0.88 (New Architecture, Hermes), TypeScript strict, TanStack Query, zustand, zod, i18next (Spanish and English).
 
@@ -19,7 +20,13 @@ Stack: bare React Native 0.88 (New Architecture, Hermes), TypeScript strict, Tan
 |---|---|---|---|
 | ![Order sheet](docs/screenshots/order-form.png) | ![Order result](docs/screenshots/order-result.png) | ![Orders](docs/screenshots/orders.png) | ![Order detail](docs/screenshots/order-detail.png) |
 
-The screenshots come from the iPhone 16 Pro simulator (iOS 18.2). The Maestro flow in `.maestro/tour.yaml` takes them.
+Dark mode (Account → Dark mode; until then the app follows the phone's appearance):
+
+| Portfolio | Market | Order sheet | Orders | Account |
+|---|---|---|---|---|
+| ![Portfolio, dark](docs/screenshots/dark-portfolio.png) | ![Market, dark](docs/screenshots/dark-market.png) | ![Order sheet, dark](docs/screenshots/dark-order-sheet.png) | ![Orders, dark](docs/screenshots/dark-orders.png) | ![Account, dark](docs/screenshots/dark-account.png) |
+
+The screenshots come from the iPhone 16 Pro simulator (iOS 18.2). The Maestro flow in `.maestro/tour.yaml` takes the light ones.
 
 ## Requirements and where they live
 
@@ -32,6 +39,8 @@ The screenshots come from the iPhone 16 Pro simulator (iOS 18.2). The Maestro fl
 | Extra: order history with the live status of `PENDING` LIMIT orders | **Orders** tab. It polls every 15 s while an order is pending. | `useOrders` in `src/hooks/useOrders.ts` |
 | Extra: order detail with an explanation of the status | **Order detail** modal. Tap an order to open it. | `src/screens/OrderDetailScreen` |
 | Extra: one account per candidate, the API bug level and an account reset, for QA | **Account** tab. The bug level and the reset show only in debug builds. | `src/screens/AccountScreen`, `src/store/session.ts` |
+| Extra: light and dark theme | **Account** tab, Dark mode switch. The choice persists; without one the app follows the system appearance. | `src/theme` (`palettes.ts`, `useTheme.ts`), `themePreference` in `src/store/session.ts` |
+| Extra: order filters and quick amounts | **Orders** filters by status and groups by day. The **order sheet** has quick picks (+1/+10/+100/Max shares, 1,000/5,000/10,000/Max ARS) and a summary with the cash left after the order. | `groupByDay` in `src/utils/orders.ts`, `quickPicks` in `orderForm.ts` |
 
 ## Run it
 
@@ -109,8 +118,8 @@ The API sends prices as float pesos (`45.72`). The zod schemas in `src/schemas` 
 
 - A screen folder `src/screens/<Name>Screen/` holds the screen, its `styles.ts`, and the `hooks/` and `components/` that only this screen uses (for example `useMarketList`, `InstrumentRow`, `MoverCard`, `HeaderBand`).
 - `src/components/` holds the shared building blocks: `Text`, `Button`, `SegmentedControl`, `TextField`, `QueryStateView`, `StatusChip`, `DeltaText`, `Icon` and others. A component moves to `src/components` only when a second screen needs it.
-- Styles use typed tokens from `src/theme` through `StyleSheet.create`. These are **lint errors**: a hex color outside the theme, an inline style object, a raw string in JSX, and a touchable without accessibility props. A lint rule also limits each screen to 400 lines.
-- Navigation uses React Navigation: four tabs (Portfolio, Market, Orders, Account) and a native stack. The stack has two modal routes: the order sheet and the order detail. Route params contain ids only. The screens read prices, holdings and orders from the query cache.
+- Styles use typed tokens from `src/theme` through `StyleSheet.create`. `src/theme/palettes.ts` defines a light and a dark palette with the same keys. Each `styles.ts` wraps its sheet in `makeStyles((colors) => StyleSheet.create(...))`, which builds both sheets once at import; the `useStyles` hook it returns picks the active one, so a theme switch costs no style work. These are **lint errors**: a hex color outside the theme, an inline style object, a raw string in JSX, and a touchable without accessibility props. A lint rule also limits each screen to 400 lines.
+- Navigation uses React Navigation: four tabs (Portfolio, Market, Orders, Account) in a floating pill tab bar (`src/navigation/FloatingTabBar.tsx`), and a native stack. The stack has two modal routes: the order sheet and the order detail. Route params contain ids only. The screens read prices, holdings and orders from the query cache.
 
 ### Testing strategy
 
@@ -132,9 +141,10 @@ These are known limits. Some come from the API and some are scope choices.
 - **No real-time prices.** Prices change only when the app fetches them again (pull-to-refresh, app focus, reconnect). Only the orders list polls, and only while an order is `PENDING`.
 - **No offline orders.** See [`docs/offline.md`](docs/offline.md).
 - **No confirmation step.** A MARKET order goes to the API when the user taps submit. The price can be different from the price on the screen.
-- **Whole shares only.** An order by ARS amount sends the largest whole number of shares that the amount can buy at the last price. The app does not support fractional shares.
+- **Whole shares only.** An order by ARS amount sends the largest whole number of shares that the amount can buy at the last price (MARKET) or at the limit price (LIMIT). The app does not support fractional shares.
 - **No login.** The candidate id identifies the account. Any person who knows an id can use that account.
-- **No dark mode and no tablet layout.** The iOS project allows iPad, but nobody tested the layout on a tablet.
+- **No tablet layout.** The iOS project allows iPad, but nobody tested the layout on a tablet.
+- **Dark mode was checked on iOS only.** The floating tab bar over the Android navigation bar and the Android status bar colors still need a pass on a device.
 - **No release pipeline.** CI runs the checks and builds the JS bundles. It does not sign or upload a build. Maestro does not run in CI. [`docs/production-checklist.md`](docs/production-checklist.md) lists the work that a store release needs.
 - **Few screen tests.** Three Maestro flows cover the main paths on iOS. The error states have no automatic test. Use the bug levels to check them manually.
 
@@ -153,7 +163,6 @@ These are observations from development. The bug level was `off` unless a line s
 - Cancel for `PENDING` LIMIT orders (this needs a new API endpoint).
 - An instrument detail screen with a price chart.
 - Real-time prices.
-- Dark mode.
 - A release pipeline (fastlane or EAS) with source maps, and the items in [`docs/production-checklist.md`](docs/production-checklist.md).
 - Maestro in CI on a simulator.
 

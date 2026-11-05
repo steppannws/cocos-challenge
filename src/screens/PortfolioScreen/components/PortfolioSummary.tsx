@@ -9,15 +9,15 @@ import { Text } from '@/components/Text';
 import { tintFor } from '@/components/TickerAvatar';
 import { useLocale } from '@/hooks/useLocale';
 import type { TabParamList } from '@/navigation/types';
-import { colors } from '@/theme';
+import { type ColorScheme, type Palette, useTheme } from '@/theme';
 import { formatMoney, formatPercent } from '@/utils/format';
 import type { AllocationSlice, PortfolioTotals } from '@/utils/portfolio';
-import { styles } from '../styles';
+import { useStyles } from '../styles';
 
 const MASK = '••••••';
 
-const sliceColor = (slice: AllocationSlice) =>
-  slice.ticker === null ? colors.surfaceStrong : tintFor(slice.ticker).foreground;
+const sliceColor = (slice: AllocationSlice, scheme: ColorScheme, colors: Palette) =>
+  slice.ticker === null ? colors.surfaceStrong : tintFor(slice.ticker, scheme).foreground;
 
 type Action = { key: string; icon: IconName; label: string; tab: keyof TabParamList };
 
@@ -27,6 +27,8 @@ export function PortfolioSummary({ totals, allocation }: Props) {
   const { t } = useTranslation();
   const locale = useLocale();
   const navigation = useNavigation();
+  const { styles } = useStyles();
+  const { scheme, colors } = useTheme();
   const [hidden, setHidden] = useState(false);
   const money = (cents: number, signed = false) =>
     hidden ? MASK : formatMoney(cents, locale, { signed });
@@ -36,11 +38,10 @@ export function PortfolioSummary({ totals, allocation }: Props) {
   const totalMain = total.slice(0, -2);
   const totalCents = total.slice(-2);
 
-  // Shortcuts to existing screens; selling starts from a holding row below.
+  // Invest picks an instrument in Market; selling starts from a holding row below.
   const actions: Action[] = [
     { key: 'invest', icon: 'plus', label: t('portfolio.actions.invest'), tab: 'Market' },
     { key: 'orders', icon: 'orders', label: t('portfolio.actions.orders'), tab: 'Orders' },
-    { key: 'account', icon: 'account', label: t('portfolio.actions.account'), tab: 'Account' },
   ];
 
   return (
@@ -100,7 +101,7 @@ export function PortfolioSummary({ totals, allocation }: Props) {
                 key={slice.ticker ?? 'cash'}
                 style={[
                   styles.allocationSegment,
-                  { flex: slice.share, backgroundColor: sliceColor(slice) },
+                  { flex: slice.share, backgroundColor: sliceColor(slice, scheme, colors) },
                 ]}
               />
             ))}
@@ -108,7 +109,9 @@ export function PortfolioSummary({ totals, allocation }: Props) {
           <View style={styles.legend}>
             {allocation.map((slice) => (
               <View key={slice.ticker ?? 'cash'} style={styles.legendItem}>
-                <View style={[styles.legendDot, { backgroundColor: sliceColor(slice) }]} />
+                <View
+                  style={[styles.legendDot, { backgroundColor: sliceColor(slice, scheme, colors) }]}
+                />
                 <Text variant="caption">
                   {`${slice.ticker ?? t('portfolio.cash')} ${formatPercent(slice.share, locale, { signed: false })}`}
                 </Text>
@@ -125,44 +128,39 @@ export function PortfolioSummary({ totals, allocation }: Props) {
             {money(totals.cashCents)}
           </Text>
         </View>
-        <View style={[styles.stat, styles.statDivider]}>
+        <View style={styles.stat}>
           <Text variant="caption">{t('portfolio.invested')}</Text>
           <Text variant="bodyStrong">{money(totals.marketValueCents)}</Text>
         </View>
       </View>
 
       <View style={styles.actions}>
-        {actions.map((action, index) => (
-          <Pressable
-            key={action.key}
-            accessibilityRole="button"
-            accessibilityLabel={action.label}
-            onPress={() => navigation.navigate('Tabs', { screen: action.tab })}
-            style={styles.action}
-            testID={`portfolio-action-${action.key}`}
-          >
-            {({ pressed }) => (
-              <>
-                <View
-                  style={[
-                    styles.actionCircle,
-                    index === 0 && styles.actionCirclePrimary,
-                    pressed && styles.actionPressed,
-                  ]}
-                >
-                  <Icon
-                    name={action.icon}
-                    size={20}
-                    color={index === 0 ? colors.textOnPrimary : colors.primary}
-                  />
-                </View>
-                <Text variant="caption" color="text">
-                  {action.label}
-                </Text>
-              </>
-            )}
-          </Pressable>
-        ))}
+        {actions.map((action, index) => {
+          const primary = index === 0;
+          return (
+            <Pressable
+              key={action.key}
+              accessibilityRole="button"
+              accessibilityLabel={action.label}
+              onPress={() => navigation.navigate('Tabs', { screen: action.tab })}
+              style={({ pressed }) => [
+                styles.action,
+                primary ? styles.actionPrimary : styles.actionSecondary,
+                pressed && styles.actionPressed,
+              ]}
+              testID={`portfolio-action-${action.key}`}
+            >
+              <Icon
+                name={action.icon}
+                size={18}
+                color={primary ? colors.textOnPrimary : colors.primary}
+              />
+              <Text variant="bodyStrong" color={primary ? 'textOnPrimary' : 'primary'}>
+                {action.label}
+              </Text>
+            </Pressable>
+          );
+        })}
       </View>
     </Card>
   );

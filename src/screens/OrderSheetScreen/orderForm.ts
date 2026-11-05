@@ -1,5 +1,5 @@
 import type { OrderSide, OrderType } from '@/schemas/order';
-import { toCents } from '@/utils/money';
+import { fromCents, toCents } from '@/utils/money';
 import { maxSharesForAmount, orderTotalCents } from '@/utils/orders';
 
 export type OrderMode = 'quantity' | 'amount';
@@ -34,7 +34,7 @@ export type OrderFieldErrors = Partial<
 >;
 
 export type DerivedOrder = {
-  /** Whole shares to send: typed, or the max the amount buys at the last price. */
+  /** Whole shares to send: typed, or the max the amount buys at `unitPriceCents`. */
   quantity: number;
   /** Price the order reserves at: the limit price, or the last price for MARKET. */
   unitPriceCents: number;
@@ -110,8 +110,9 @@ export function deriveOrder(values: OrderFormValues, ctx: OrderFormContext): Der
     if (!Number.isFinite(amount) || amount <= 0) {
       errors.amount = 'amountPositive';
     } else {
-      // Spec: an ARS amount becomes the max whole shares at the last price.
-      quantity = maxSharesForAmount(toCents(amount), ctx.lastPriceCents);
+      // Spec: an ARS amount becomes the max whole shares at the last price. A LIMIT order sizes at
+      // its limit price instead, so the share count and the total use the same price.
+      quantity = maxSharesForAmount(toCents(amount), unitPriceCents);
       if (quantity === 0) {
         errors.amount = 'amountTooSmall';
       }
@@ -140,4 +141,78 @@ export function deriveOrder(values: OrderFormValues, ctx: OrderFormContext): Der
     errors,
     isValid: Object.keys(errors).length === 0,
   };
+}
+
+export type QuickPickSpec = {
+  key: string;
+  /** The figure on the chip; `null` for Max. */
+  value: number | null;
+  increment: boolean;
+  /** The field's new text after a tap; `null` when the chip cannot apply (Max unknown or 0). */
+  next: string | null;
+  selected: boolean;
+};
+
+const QUANTITY_STEPS = [1, 10, 100];
+const AMOUNT_PRESETS = [1000, 5000, 10000];
+
+/**
+ * Chips under the order amount. Quantity mode adds shares; amount mode sets an ARS amount.
+ * Max is all the cash (buy) or every share owned (sell), at the price the order would use.
+ */
+export function quickPicks(
+  values: OrderFormValues,
+  ctx: OrderFormContext,
+  unitPriceCents: number,
+): QuickPickSpec[] {
+  if (values.mode === 'quantity') {
+    const typed = parseInteger(values.quantity);
+    const current = Number.isFinite(typed) ? typed : 0;
+    const maxShares =
+      values.side === 'BUY'
+        ? ctx.availableCashCents === null
+          ? null
+          : maxSharesForAmount(ctx.availableCashCents, unitPriceCents)
+        : ctx.availableShares;
+    return [
+      ...QUANTITY_STEPS.map((step) => ({
+        key: `add${step}`,
+        value: step,
+        increment: true,
+        next: String(current + step),
+        selected: false,
+      })),
+      {
+        key: 'max',
+        value: null,
+        increment: false,
+        next: maxShares !== null && maxShares > 0 ? String(maxShares) : null,
+        selected: maxShares !== null && maxShares > 0 && current === maxShares,
+      },
+    ];
+  }
+  const typed = parseDecimal(values.amount);
+  const maxCents =
+    values.side === 'BUY'
+      ? ctx.availableCashCents
+      : ctx.availableShares === null
+        ? null
+        : ctx.availableShares * unitPriceCents;
+  return [
+    ...AMOUNT_PRESETS.map((preset) => ({
+      key: String(preset),
+      value: preset,
+      increment: false,
+      next: String(preset),
+      selected: typed === preset,
+    })),
+    {
+      key: 'max',
+      value: null,
+      increment: false,
+      next: maxCents !== null && maxCents > 0 ? fromCents(maxCents).toFixed(2) : null,
+      selected:
+        maxCents !== null && maxCents > 0 && Number.isFinite(typed) && toCents(typed) === maxCents,
+    },
+  ];
 }

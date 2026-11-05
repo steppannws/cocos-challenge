@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '@/theme';
+import { brand } from '@/theme';
 
 export const MARK_SIZE = 100;
 
@@ -17,7 +17,7 @@ export const styles = StyleSheet.create({
   },
   disc: {
     position: 'absolute',
-    backgroundColor: colors.heroTop,
+    backgroundColor: brand.navy,
   },
   mark: {
     width: MARK_SIZE,

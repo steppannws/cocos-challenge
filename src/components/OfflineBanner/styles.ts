@@ -1,11 +1,13 @@
 import { StyleSheet } from 'react-native';
-import { colors, spacing } from '@/theme';
+import { makeStyles, spacing } from '@/theme';
 
-export const styles = StyleSheet.create({
-  banner: {
-    backgroundColor: colors.warningMuted,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    alignItems: 'center',
-  },
-});
+export const useStyles = makeStyles((colors) =>
+  StyleSheet.create({
+    banner: {
+      backgroundColor: colors.warningMuted,
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.lg,
+      alignItems: 'center',
+    },
+  }),
+);

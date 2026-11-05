@@ -7,7 +7,8 @@ Una app de broker para el [desafío React Native de Cocos Capital](https://githu
 - ver la lista de instrumentos y buscarlos por ticker,
 - ver el portfolio con valor de mercado, resultado y rendimiento,
 - enviar órdenes BUY y SELL (MARKET o LIMIT, por cantidad o por monto en ARS),
-- seguir el estado de cada orden.
+- seguir el estado de cada orden,
+- cambiar entre un tema claro y uno oscuro.
 
 Stack: React Native 0.88 bare (New Architecture, Hermes), TypeScript strict, TanStack Query, zustand, zod, i18next (español e inglés).
 
@@ -19,7 +20,13 @@ Stack: React Native 0.88 bare (New Architecture, Hermes), TypeScript strict, Tan
 |---|---|---|---|
 | ![Formulario de orden](docs/screenshots/order-form.png) | ![Resultado de la orden](docs/screenshots/order-result.png) | ![Órdenes](docs/screenshots/orders.png) | ![Detalle de orden](docs/screenshots/order-detail.png) |
 
-Las capturas salen del simulador de iPhone 16 Pro (iOS 18.2). Las toma el flujo de Maestro `.maestro/tour.yaml`.
+Modo oscuro (Cuenta → Modo oscuro; mientras no se elija, la app sigue la apariencia del teléfono):
+
+| Portfolio | Mercado | Formulario de orden | Órdenes | Cuenta |
+|---|---|---|---|---|
+| ![Portfolio, oscuro](docs/screenshots/dark-portfolio.png) | ![Mercado, oscuro](docs/screenshots/dark-market.png) | ![Formulario de orden, oscuro](docs/screenshots/dark-order-sheet.png) | ![Órdenes, oscuro](docs/screenshots/dark-orders.png) | ![Cuenta, oscuro](docs/screenshots/dark-account.png) |
+
+Las capturas salen del simulador de iPhone 16 Pro (iOS 18.2). El flujo de Maestro `.maestro/tour.yaml` toma las del tema claro.
 
 ## Requisitos y dónde viven
 
@@ -32,6 +39,8 @@ Las capturas salen del simulador de iPhone 16 Pro (iOS 18.2). Las toma el flujo 
 | Extra: historial de órdenes con el estado en vivo de las órdenes LIMIT `PENDING` | Tab **Órdenes**. Consulta la API cada 15 s mientras haya una orden pendiente. | `useOrders` en `src/hooks/useOrders.ts` |
 | Extra: detalle de orden con una explicación del estado | Modal **Detalle de orden**. Se abre al tocar una orden. | `src/screens/OrderDetailScreen` |
 | Extra: una cuenta por candidato, el nivel de bugs de la API y un reinicio de cuenta, para QA | Tab **Cuenta**. El nivel de bugs y el reinicio solo aparecen en builds de debug. | `src/screens/AccountScreen`, `src/store/session.ts` |
+| Extra: tema claro y oscuro | Tab **Cuenta**, switch Modo oscuro. La elección persiste; sin una elección, la app sigue la apariencia del sistema. | `src/theme` (`palettes.ts`, `useTheme.ts`), `themePreference` en `src/store/session.ts` |
+| Extra: filtros de órdenes y montos rápidos | **Órdenes** filtra por estado y agrupa por día. El **formulario de orden** tiene atajos (+1/+10/+100/Máx acciones, 1.000/5.000/10.000/Máx ARS) y un resumen con el efectivo que queda después de la orden. | `groupByDay` en `src/utils/orders.ts`, `quickPicks` en `orderForm.ts` |
 
 ## Cómo correrla
 
@@ -109,8 +118,8 @@ La API manda los precios como pesos en float (`45.72`). Los esquemas zod en `src
 
 - Una carpeta de pantalla `src/screens/<Name>Screen/` contiene la pantalla, su `styles.ts`, y los `hooks/` y `components/` que solo usa esa pantalla (por ejemplo `useMarketList`, `InstrumentRow`, `MoverCard`, `HeaderBand`).
 - `src/components/` contiene los bloques compartidos: `Text`, `Button`, `SegmentedControl`, `TextField`, `QueryStateView`, `StatusChip`, `DeltaText`, `Icon` y otros. Un componente pasa a `src/components` solo cuando una segunda pantalla lo necesita.
-- Los estilos usan tokens tipados de `src/theme` a través de `StyleSheet.create`. Estos son **errores de lint**: un color hex fuera del theme, un objeto de estilo inline, un string crudo en JSX y un touchable sin props de accesibilidad. Otra regla de lint limita cada pantalla a 400 líneas.
-- La navegación usa React Navigation: cuatro tabs (Portfolio, Mercado, Órdenes, Cuenta) y un native stack. El stack tiene dos rutas modales: el formulario de orden y el detalle de orden. Los parámetros de ruta contienen solo ids. Las pantallas leen precios, tenencias y órdenes de la caché de queries.
+- Los estilos usan tokens tipados de `src/theme` a través de `StyleSheet.create`. `src/theme/palettes.ts` define una paleta clara y una oscura con las mismas claves. Cada `styles.ts` envuelve su hoja en `makeStyles((colors) => StyleSheet.create(...))`, que arma las dos hojas una sola vez al importar; el hook `useStyles` que devuelve elige la activa, así que cambiar de tema no cuesta trabajo de estilos. Estos son **errores de lint**: un color hex fuera del theme, un objeto de estilo inline, un string crudo en JSX y un touchable sin props de accesibilidad. Otra regla de lint limita cada pantalla a 400 líneas.
+- La navegación usa React Navigation: cuatro tabs (Portfolio, Mercado, Órdenes, Cuenta) en una tab bar flotante tipo píldora (`src/navigation/FloatingTabBar.tsx`), y un native stack. El stack tiene dos rutas modales: el formulario de orden y el detalle de orden. Los parámetros de ruta contienen solo ids. Las pantallas leen precios, tenencias y órdenes de la caché de queries.
 
 ### Estrategia de testing
 
@@ -132,9 +141,10 @@ Son límites conocidos. Algunos vienen de la API y otros son decisiones de alcan
 - **Sin precios en tiempo real.** Los precios cambian solo cuando la app los vuelve a pedir (pull-to-refresh, foco de la app, reconexión). Solo la lista de órdenes hace polling, y solo mientras hay una orden `PENDING`.
 - **Sin órdenes offline.** Ver [`docs/offline.es.md`](docs/offline.es.md).
 - **Sin paso de confirmación.** Una orden MARKET va a la API cuando el usuario toca enviar. El precio puede ser distinto del precio en pantalla.
-- **Solo acciones enteras.** Una orden por monto en ARS manda la mayor cantidad entera de acciones que ese monto compra al último precio. La app no soporta fracciones de acciones.
+- **Solo acciones enteras.** Una orden por monto en ARS manda la mayor cantidad entera de acciones que ese monto compra al último precio (MARKET) o al precio límite (LIMIT). La app no soporta fracciones de acciones.
 - **Sin login.** El candidate id identifica la cuenta. Cualquiera que conozca un id puede usar esa cuenta.
-- **Sin modo oscuro ni layout para tablet.** El proyecto de iOS permite iPad, pero nadie probó el layout en una tablet.
+- **Sin layout para tablet.** El proyecto de iOS permite iPad, pero nadie probó el layout en una tablet.
+- **El modo oscuro se probó solo en iOS.** Falta revisar en un dispositivo la tab bar flotante sobre la barra de navegación de Android y los colores de la status bar de Android.
 - **Sin pipeline de release.** CI corre los chequeos y compila los bundles de JS. No firma ni sube un build. Maestro no corre en CI. [`docs/production-checklist.es.md`](docs/production-checklist.es.md) lista el trabajo que necesita un release a las tiendas.
 - **Pocos tests de pantalla.** Tres flujos de Maestro cubren los caminos principales en iOS. Los estados de error no tienen test automático. Los niveles de bugs sirven para probarlos a mano.
 
@@ -153,7 +163,6 @@ Son observaciones del desarrollo. El nivel de bugs era `off` salvo que una líne
 - Cancelación de órdenes LIMIT `PENDING` (necesita un endpoint nuevo en la API).
 - Una pantalla de detalle de instrumento con un gráfico de precio.
 - Precios en tiempo real.
-- Modo oscuro.
 - Un pipeline de release (fastlane o EAS) con source maps, y los ítems de [`docs/production-checklist.es.md`](docs/production-checklist.es.md).
 - Maestro en CI sobre un simulador.
 

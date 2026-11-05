@@ -33,7 +33,9 @@
     "noResults": "No results for \"{{query}}\".",
     "openOrder": "Trade {{ticker}}",
     "topMovers": "Top movers",
-    "allStocks": "All stocks"
+    "allStocks": "All stocks",
+    "gainers": "Gainers",
+    "losers": "Losers"
   },
   "portfolio": {
     "title": "Portfolio",
@@ -63,6 +65,9 @@
     "line": "{{side}} · {{type}} · {{quantity}} × {{price}}",
     "lineNoPrice": "{{side}} · {{type}} · {{quantity}}",
     "orderId": "#{{id}}",
+    "rowLine": "{{type}} · {{quantity}} × {{price}}",
+    "rowLineNoPrice": "{{type}} · {{quantity}}",
+    "filter": { "all": "All", "label": "Filter by status", "empty": "No orders with this status." },
     "openDetail": "Open {{ticker}} order, {{status}}"
   },
   "orderDetail": {
@@ -107,6 +112,17 @@
     "maxShares_one": "That amount buys {{count}} share",
     "maxShares_other": "That amount buys {{count}} shares",
     "estimatedTotal": "Estimated total",
+    "youInvest": "You invest",
+    "youSell": "You sell",
+    "max": "Max",
+    "lineTotal": "{{quantity}} × {{price}}",
+    "unspent": "Unspent, stays as cash",
+    "cashAfter": "Cash after order",
+    "sharesAfter": "Shares left after order",
+    "approxShares_one": "≈ {{count}} share · {{total}}",
+    "approxShares_other": "≈ {{count}} shares · {{total}}",
+    "switchToAmount": "Enter an amount in ARS instead",
+    "switchToQuantity": "Enter a number of shares instead",
     "submit": { "BUY": "Confirm buy", "SELL": "Confirm sell" },
     "offline": "You need a connection to send an order.",
     "maybeSent": "We lost the connection while sending. The order may have gone through: check Orders before you try again.",
@@ -140,6 +156,9 @@
     "reset": "Reset account",
     "resetHint": "Deletes your orders and holdings. Back to 1,000,000 ARS.",
     "resetDone": "Account reset.",
-    "about": "Cocos Challenge · React Native {{version}}"
+    "about": "Cocos Challenge · React Native {{version}}",
+    "appearance": "Appearance",
+    "darkMode": "Dark mode",
+    "darkModeHint": "Follows your phone's setting until you change it here."
   }
 }

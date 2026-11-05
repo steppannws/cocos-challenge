@@ -1,11 +1,15 @@
 import { StyleSheet } from 'react-native';
-import { colors, radii, spacing } from '@/theme';
+import { makeStyles, radii, spacing } from '@/theme';
 
-export const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.card,
-    borderRadius: radii.lg,
-    padding: spacing.lg,
-    gap: spacing.md,
-  },
-});
+export const useStyles = makeStyles((colors) =>
+  StyleSheet.create({
+    card: {
+      backgroundColor: colors.card,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radii.lg,
+      padding: spacing.lg,
+      gap: spacing.md,
+    },
+  }),
+);

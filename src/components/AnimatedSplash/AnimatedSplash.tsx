@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { Animated, Easing, StatusBar, useWindowDimensions } from 'react-native';
 import BootSplash from 'react-native-bootsplash';
 import Svg, { Circle, Path } from 'react-native-svg';
-import { colors } from '@/theme';
+import { brand } from '@/theme';
 import { MARK_SIZE, styles } from './styles';
 
 type Props = { onHidden: () => void };
@@ -104,13 +104,13 @@ export function AnimatedSplash({ onHidden }: Props) {
           <AnimatedPath
             d={C_PATH}
             fill="none"
-            stroke={colors.textOnHero}
+            stroke={brand.white}
             strokeWidth={16}
             strokeLinecap="round"
             strokeDasharray={[C_LENGTH, C_LENGTH]}
             strokeDashoffset={dash}
           />
-          <AnimatedCircle cx={DOT.cx} cy={DOT.cy} r={dotRadius} fill={colors.brandAccent} />
+          <AnimatedCircle cx={DOT.cx} cy={DOT.cy} r={dotRadius} fill={brand.mint} />
         </Svg>
       </Animated.View>
     </Animated.View>
