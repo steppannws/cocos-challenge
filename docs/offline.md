@@ -1,5 +1,7 @@
 # Offline behavior
 
+Versión en español: [`offline.es.md`](offline.es.md).
+
 This document says what works without a connection, what does not work, and why. Read it before you change `src/api`, `src/offline` or the order sheet.
 
 ## Reads: cached and stored on the device

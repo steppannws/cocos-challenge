@@ -80,10 +80,22 @@ export const portfolioAllocation = (portfolio: Portfolio): AllocationSlice[] => 
 
 type Priced = { lastPriceCents: Cents; closePriceCents: Cents };
 
-/** Instruments with the largest absolute daily change, biggest first. No close price = skipped. */
-export const topMovers = <T extends Priced>(items: readonly T[], limit = 5) =>
+export type MoverDirection = 'all' | 'gainers' | 'losers';
+
+/**
+ * Instruments with the largest daily change, biggest first. `all` ranks by absolute change;
+ * `gainers` keeps rises only, `losers` falls only. No close price = skipped.
+ */
+export const topMovers = <T extends Priced>(
+  items: readonly T[],
+  limit = 5,
+  direction: MoverDirection = 'all',
+) =>
   items
     .map((item) => ({ item, change: dailyReturn(item.lastPriceCents, item.closePriceCents) }))
     .filter((entry): entry is { item: T; change: number } => entry.change !== null)
+    .filter(
+      ({ change }) => direction === 'all' || (direction === 'gainers' ? change > 0 : change < 0),
+    )
     .sort((a, b) => Math.abs(b.change) - Math.abs(a.change))
     .slice(0, limit);

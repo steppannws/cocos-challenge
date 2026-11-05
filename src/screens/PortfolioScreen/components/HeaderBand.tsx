@@ -1,26 +1,21 @@
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import { type PropsWithChildren, useCallback } from 'react';
 import { StatusBar, StyleSheet, View } from 'react-native';
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
-import { colors } from '@/theme';
-import { styles } from '../styles';
+import { useTheme } from '@/theme';
+import { useStyles } from '../styles';
 
 /** Blue gradient band; the balance card overlaps its bottom edge. */
 export function HeaderBand({ children }: PropsWithChildren) {
-  const navigation = useNavigation();
+  const { styles } = useStyles();
+  const { scheme, colors } = useTheme();
 
-  // iOS uses view-controller-based status bar appearance (react-native-screens), so the style is
-  // a native-stack option on the Tabs screen; StatusBar covers Android. Light only while focused.
+  // Android: StatusBar API, light text only while focused. iOS: the Tabs navigator sets it.
   useFocusEffect(
     useCallback(() => {
-      const stack = navigation.getParent();
-      stack?.setOptions({ statusBarStyle: 'light' });
       StatusBar.setBarStyle('light-content');
-      return () => {
-        stack?.setOptions({ statusBarStyle: 'dark' });
-        StatusBar.setBarStyle('dark-content');
-      };
-    }, [navigation]),
+      return () => StatusBar.setBarStyle(scheme === 'dark' ? 'light-content' : 'dark-content');
+    }, [scheme]),
   );
 
   return (

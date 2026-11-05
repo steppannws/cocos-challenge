@@ -3,6 +3,8 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath, URL } from 'node:url';
 import { describe, expect, it } from 'vitest';
+// The palette file, not '@/theme': that also exports hooks, which import react-native.
+import { brand } from '@/theme/palettes';
 
 /**
  * Device-only assumptions that Node tests cannot see.
@@ -41,5 +43,14 @@ describe('platform requirements', () => {
     for (const key of keys) {
       expect(dotenv, `${key} is missing from .env`).toMatch(new RegExp(`^${key}=`, 'm'));
     }
+  });
+
+  it('paints the splash screen with the theme hero color', () => {
+    // The native splash and its JS copy share this manifest. If the theme drifts, the
+    // hand-off shows a color jump. Regenerate with: pnpm assets:splash
+    const manifest = JSON.parse(read('src/assets/bootsplash/manifest.json')) as {
+      background: string;
+    };
+    expect(manifest.background.toUpperCase()).toBe(brand.navy.toUpperCase());
   });
 });

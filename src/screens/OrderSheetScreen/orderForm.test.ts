@@ -5,6 +5,7 @@ import {
   type OrderFormContext,
   parseDecimal,
   parseInteger,
+  quickPicks,
 } from './orderForm';
 
 const ctx: OrderFormContext = {
@@ -102,13 +103,13 @@ describe('deriveOrder', () => {
     });
   });
 
-  it('limit buy by amount still sizes the order with the last price', () => {
+  it('limit buy by amount sizes the order with the limit price', () => {
     const d = deriveOrder(
       { ...buy, type: 'LIMIT', mode: 'amount', amount: '1000', price: '40' },
       ctx,
     );
-    expect(d.quantity).toBe(21);
-    expect(d.totalCents).toBe(21 * 4000);
+    expect(d.quantity).toBe(25);
+    expect(d.totalCents).toBe(25 * 4000);
   });
 
   it('rejects a buy above the available cash, but not when cash is unknown', () => {
@@ -129,5 +130,39 @@ describe('deriveOrder', () => {
   it('skips the balance checks while the quantity is still invalid', () => {
     const d = deriveOrder({ ...sell, quantity: '' }, { ...ctx, availableShares: 0 });
     expect(d.errors).toEqual({ quantity: 'quantityPositive' });
+  });
+});
+
+describe('quickPicks', () => {
+  const pickCtx: OrderFormContext = {
+    lastPriceCents: 4572,
+    availableCashCents: 14272358,
+    availableShares: 10,
+  };
+  const next = (picks: ReturnType<typeof quickPicks>) => picks.map((p) => p.next);
+
+  it('adds shares in quantity mode and caps Max at what the cash buys', () => {
+    const values = { ...initialOrderValues('BUY'), quantity: '2' };
+    expect(next(quickPicks(values, pickCtx, 4572))).toEqual(['3', '12', '102', '3121']);
+  });
+  it('sells every share owned on Max', () => {
+    const values = initialOrderValues('SELL');
+    expect(quickPicks(values, pickCtx, 4572).at(-1)?.next).toBe('10');
+  });
+  it('sets ARS presets in amount mode and marks the one typed', () => {
+    const values = { ...initialOrderValues('BUY'), mode: 'amount' as const, amount: '5000' };
+    const picks = quickPicks(values, pickCtx, 4572);
+    expect(next(picks)).toEqual(['1000', '5000', '10000', '142723.58']);
+    expect(picks.map((p) => p.selected)).toEqual([false, true, false, false]);
+  });
+  it('disables Max until the portfolio is known', () => {
+    const unknown = { ...pickCtx, availableCashCents: null };
+    expect(quickPicks(initialOrderValues('BUY'), unknown, 4572).at(-1)?.next).toBeNull();
+  });
+  it('uses the limit price for Max when there is one', () => {
+    const values = { ...initialOrderValues('BUY'), type: 'LIMIT' as const };
+    expect(quickPicks(values, { ...pickCtx, availableCashCents: 10000 }, 2500).at(-1)?.next).toBe(
+      '4',
+    );
   });
 });

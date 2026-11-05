@@ -5,13 +5,13 @@ import { Icon, type IconName } from '@/components/Icon';
 import { StatusChip } from '@/components/StatusChip';
 import { Text } from '@/components/Text';
 import type { Order } from '@/schemas/order';
-import { colors } from '@/theme';
-import { styles } from '../styles';
+import { type Color, useTheme } from '@/theme';
+import { useStyles } from '../styles';
 
-const icon: Record<Order['status'], { name: IconName; color: string }> = {
-  FILLED: { name: 'check', color: colors.gain },
-  PENDING: { name: 'clock', color: colors.warning },
-  REJECTED: { name: 'alert', color: colors.loss },
+const icon: Record<Order['status'], { name: IconName; color: Color }> = {
+  FILLED: { name: 'check', color: 'gain' },
+  PENDING: { name: 'clock', color: 'warning' },
+  REJECTED: { name: 'alert', color: 'loss' },
 };
 
 type Props = { order: Order; onNewOrder: () => void; onDone: () => void };
@@ -19,9 +19,11 @@ type Props = { order: Order; onNewOrder: () => void; onDone: () => void };
 // Spec: show the id and status the POST returned.
 export function OrderResult({ order, onNewOrder, onDone }: Props) {
   const { t } = useTranslation();
+  const { styles } = useStyles();
+  const { colors } = useTheme();
   return (
     <View style={styles.result} testID="order-result">
-      <Icon name={icon[order.status].name} size={48} color={icon[order.status].color} />
+      <Icon name={icon[order.status].name} size={48} color={colors[icon[order.status].color]} />
       <Text variant="heading" style={styles.resultText}>
         {t('order.result.title')}
       </Text>

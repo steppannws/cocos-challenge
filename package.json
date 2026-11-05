@@ -1,6 +1,6 @@
 {
   "name": "cocos-challenge",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "scripts": {
     "start": "react-native start",
@@ -13,6 +13,8 @@
     "test": "vitest run",
     "verify": "scripts/verify.sh",
     "verify:full": "scripts/verify.sh --full",
+    "assets:icons": "node scripts/generate-icons.mjs",
+    "assets:splash": "react-native-bootsplash generate src/assets/brand/splash-blank.svg --platforms=android,ios --background=0A2462 --logo-width=2 --assets-output=src/assets/bootsplash",
     "prepare": "scripts/setup-hooks.sh"
   },
   "dependencies": {
@@ -28,6 +30,7 @@
     "react": "19.3.0",
     "react-i18next": "^17.1.9",
     "react-native": "0.88.1",
+    "react-native-bootsplash": "^7.3.5",
     "react-native-config": "^1.7.2",
     "react-native-localize": "^3.7.2",
     "react-native-mmkv": "^4.3.2",

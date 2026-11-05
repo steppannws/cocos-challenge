@@ -1,7 +1,9 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '@/theme';
+import { makeStyles } from '@/theme';
 
-export const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  tinted: { backgroundColor: colors.heroTop },
-});
+export const useStyles = makeStyles((colors) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    tinted: { backgroundColor: colors.heroTop },
+  }),
+);

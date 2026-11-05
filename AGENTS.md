@@ -1,5 +1,7 @@
 # AGENTS.md
 
+Versión en español: [`AGENTS.es.md`](AGENTS.es.md).
+
 Guidance for AI agents and humans working in this repo. Single source of truth: other agent configs point here. Product context: `PRODUCT_BRIEF.md`. Why each library: `docs/decisions.md`.
 
 ## Core rule
@@ -43,7 +45,7 @@ src/
   offline/storage.ts    the MMKV instance behind the query cache and the session store
   store/session.ts      client state only (candidate id, bug level). Server data never goes here
   i18n/                 index.ts · i18next.d.ts (typed keys) · locales/es.json · locales/en.json
-  theme/index.ts        the only place colors, spacing, fonts, radii are defined
+  theme/                palettes.ts: the only place colors, spacing, fonts, radii are defined (light + dark) · useTheme.ts: useTheme, makeStyles
   utils/                pure functions, test next to them: format.ts + format.test.ts
   config/env.ts         reads react-native-config once, validated with zod
 tests/                  platform.test.ts and cross-cutting tests
@@ -70,6 +72,7 @@ Naming: PascalCase for components and screens, camelCase for everything else (`u
 
 **UI**
 - Colors, spacing, font sizes: tokens from `@/theme` only. A hex literal outside `src/theme` is a lint error.
+- Light and dark: `styles.ts` exports `useStyles = makeStyles((colors) => StyleSheet.create(...))`; inline colors come from `useTheme().colors`. Never import a palette directly in a component.
 - Every user-facing string goes through `t('key')`. A raw string in JSX is a lint error. Add the key to `es.json` and `en.json`; a key missing from `es.json` fails typecheck.
 - `StyleSheet.create` in `styles.ts`. No inline style objects except for values computed at runtime (lint error).
 - Every touchable has `accessibilityRole` and `accessibilityLabel` (lint error). Every list has an empty state, a loading state and an error state with retry (`QueryStateView`).
@@ -111,3 +114,4 @@ Naming: PascalCase for components and screens, camelCase for everything else (`u
 - `docs/decisions.md`: every library and why. Update it when you add or replace one.
 - `docs/offline.md`: what works offline and why orders do not queue.
 - `docs/production-checklist.md`: before any store submission.
+- Each doc has a Spanish twin next to it with the `.es.md` suffix. Edit the English file first, then update the twin.

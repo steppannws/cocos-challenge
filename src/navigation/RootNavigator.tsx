@@ -1,9 +1,9 @@
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { DefaultTheme, NavigationContainer, type Theme } from '@react-navigation/native';
+import { type BottomTabBarProps, createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { DarkTheme, DefaultTheme, NavigationContainer, type Theme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
-import { Icon, type IconName } from '@/components/Icon';
 import { useOrders } from '@/hooks/useOrders';
 import { AccountScreen } from '@/screens/AccountScreen';
 import { MarketScreen } from '@/screens/MarketScreen';
@@ -11,59 +11,39 @@ import { OrderDetailScreen } from '@/screens/OrderDetailScreen';
 import { OrderSheetScreen } from '@/screens/OrderSheetScreen';
 import { OrdersScreen } from '@/screens/OrdersScreen';
 import { PortfolioScreen } from '@/screens/PortfolioScreen';
-import { colors } from '@/theme';
-import { styles } from './styles';
+import { useTheme } from '@/theme';
+import { FloatingTabBar } from './FloatingTabBar';
 import type { RootStackParamList, TabParamList } from './types';
 
 const Tab = createBottomTabNavigator<TabParamList>();
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-const theme: Theme = {
-  ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-    primary: colors.primary,
-    background: colors.background,
-    card: colors.background,
-    text: colors.text,
-    border: colors.border,
-  },
-};
-
-type TabIconProps = { color: string; size: number; focused: boolean };
-const tabIcon = (name: IconName) =>
-  function TabIcon({ color, focused }: TabIconProps) {
-    return (
-      <View style={[styles.tabIcon, focused && styles.tabIconFocused]}>
-        <Icon name={name} size={22} color={color} />
-      </View>
-    );
-  };
-const MarketIcon = tabIcon('market');
-const PortfolioIcon = tabIcon('portfolio');
-const OrdersIcon = tabIcon('orders');
-const AccountIcon = tabIcon('account');
+const renderTabBar = (props: BottomTabBarProps) => <FloatingTabBar {...props} />;
 
 function Tabs() {
   const { t } = useTranslation();
   // Tabs mount lazily: keep the PENDING-order poll alive so a fill refreshes Portfolio from any tab.
   useOrders();
+  // iOS reads the status bar style from this stack screen (react-native-screens). Portfolio starts
+  // with a navy band in both themes, so it always gets light text; the rest follow the theme.
+  const navigation = useNavigation();
+  const { scheme } = useTheme();
+  const [focusedTab, setFocusedTab] = useState<keyof TabParamList>('Portfolio');
+  useEffect(() => {
+    const light = focusedTab === 'Portfolio' || scheme === 'dark';
+    navigation.setOptions({ statusBarStyle: light ? 'light' : 'dark' });
+  }, [navigation, scheme, focusedTab]);
   return (
     <Tab.Navigator
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textMuted,
-        tabBarStyle: styles.tabBar,
-        tabBarLabelStyle: styles.tabLabel,
-      }}
+      tabBar={renderTabBar}
+      screenOptions={{ headerShown: false }}
+      screenListeners={({ route }) => ({ focus: () => setFocusedTab(route.name) })}
     >
       <Tab.Screen
         name="Portfolio"
         component={PortfolioScreen}
         options={{
           title: t('tabs.portfolio'),
-          tabBarIcon: PortfolioIcon,
           tabBarButtonTestID: 'tab-portfolio',
         }}
       />
@@ -72,7 +52,6 @@ function Tabs() {
         component={MarketScreen}
         options={{
           title: t('tabs.market'),
-          tabBarIcon: MarketIcon,
           tabBarButtonTestID: 'tab-market',
         }}
       />
@@ -81,7 +60,6 @@ function Tabs() {
         component={OrdersScreen}
         options={{
           title: t('tabs.orders'),
-          tabBarIcon: OrdersIcon,
           tabBarButtonTestID: 'tab-orders',
         }}
       />
@@ -90,7 +68,6 @@ function Tabs() {
         component={AccountScreen}
         options={{
           title: t('tabs.account'),
-          tabBarIcon: AccountIcon,
           tabBarButtonTestID: 'tab-account',
         }}
       />
@@ -99,9 +76,30 @@ function Tabs() {
 }
 
 export function RootNavigator() {
+  const { scheme, colors } = useTheme();
+  const theme = useMemo<Theme>(() => {
+    const base = scheme === 'dark' ? DarkTheme : DefaultTheme;
+    return {
+      ...base,
+      colors: {
+        ...base.colors,
+        primary: colors.primary,
+        background: colors.background,
+        card: colors.background,
+        text: colors.text,
+        border: colors.border,
+      },
+    };
+  }, [scheme, colors]);
   return (
     <NavigationContainer theme={theme}>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+          // iOS reads the status bar style per screen (react-native-screens).
+          statusBarStyle: scheme === 'dark' ? 'light' : 'dark',
+        }}
+      >
         <Stack.Screen name="Tabs" component={Tabs} />
         <Stack.Screen
           name="OrderSheet"

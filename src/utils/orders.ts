@@ -18,3 +18,21 @@ export const hasSettled = (
   const pendingIds = new Set(previous.filter((o) => o.status === 'PENDING').map((o) => o.id));
   return next.some((o) => pendingIds.has(o.id) && o.status !== 'PENDING');
 };
+
+/** Consecutive items with the same day label form one section. Expects items already sorted. */
+export const groupByDay = <T extends { createdAt: string }>(
+  items: readonly T[],
+  dayOf: (iso: string) => string,
+): { title: string; data: T[] }[] => {
+  const sections: { title: string; data: T[] }[] = [];
+  for (const item of items) {
+    const title = dayOf(item.createdAt);
+    const last = sections.at(-1);
+    if (last && last.title === title) {
+      last.data.push(item);
+    } else {
+      sections.push({ title, data: [item] });
+    }
+  }
+  return sections;
+};
