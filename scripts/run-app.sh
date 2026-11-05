@@ -87,9 +87,18 @@ else
     # Override with AVD=<name> when the first one is not bootable.
     AVD=${AVD:-$(emulator -list-avds | head -1)}
     [ -n "$AVD" ] || { echo "No Android emulator (AVD) found"; exit 1; }
-    emulator -avd "$AVD" -no-snapshot-save >/dev/null 2>&1 &
-    adb wait-for-device
-    until [ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = 1 ]; do sleep 2; done
+    EMULATOR_LOG=${TMPDIR:-/tmp}/run-app-emulator.log
+    emulator -avd "$AVD" -no-snapshot-save >"$EMULATOR_LOG" 2>&1 &
+    EMULATOR_PID=$!
+    # A broken AVD exits at once; `adb wait-for-device` would then wait forever.
+    until [ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = 1 ]; do
+      kill -0 "$EMULATOR_PID" 2>/dev/null || {
+        echo "Emulator '$AVD' exited. Pick another with AVD=<name> (see: emulator -list-avds)"
+        tail -n 5 "$EMULATOR_LOG"
+        exit 1
+      }
+      sleep 2
+    done
   fi
   # A fresh emulator's Gboard opens a "Try out your stylus" sheet over the keyboard and eats the first typed text.
   adb shell settings put secure stylus_handwriting_enabled 0 >/dev/null 2>&1 || true
