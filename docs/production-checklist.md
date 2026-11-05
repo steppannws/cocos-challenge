@@ -1,5 +1,7 @@
 # Production checklist
 
+Versión en español: [`production-checklist.es.md`](production-checklist.es.md).
+
 Do these checks before the first store submission and before each major release. CI does the items marked (CI). This app has not had a store release, so no item is checked yet.
 
 ## Build and release

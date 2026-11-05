@@ -1,5 +1,7 @@
 # Decisions
 
+Versión en español: [`decisions.es.md`](decisions.es.md).
+
 One line for each choice: what and why. Update this file when you add or replace a library. This file has no version numbers. `package.json` has them.
 
 ## Platform
