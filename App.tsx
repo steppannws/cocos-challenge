@@ -1,8 +1,10 @@
 import '@/i18n';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import { useState } from 'react';
 import { StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { persistOptions, queryClient } from '@/api/queryClient';
+import { AnimatedSplash } from '@/components/AnimatedSplash';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { RootNavigator } from '@/navigation/RootNavigator';
 import { initCrashReporting, wrapRoot } from '@/utils/crashReporting';
@@ -11,6 +13,7 @@ import { initCrashReporting, wrapRoot } from '@/utils/crashReporting';
 initCrashReporting();
 
 function App() {
+  const [splashVisible, setSplashVisible] = useState(true);
   return (
     <ErrorBoundary>
       <SafeAreaProvider>
@@ -18,6 +21,7 @@ function App() {
           <StatusBar barStyle="dark-content" />
           <RootNavigator />
         </PersistQueryClientProvider>
+        {splashVisible && <AnimatedSplash onHidden={() => setSplashVisible(false)} />}
       </SafeAreaProvider>
     </ErrorBoundary>
   );

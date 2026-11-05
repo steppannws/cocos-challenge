@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2" height="2" viewBox="0 0 2 2">
+  <!-- The native splash is plain navy on purpose: AnimatedSplash draws the mark once JS runs (Draw entrance).
+       react-native-bootsplash needs a logo file, so this transparent one keeps its generator and theme attributes happy. -->
+</svg>
