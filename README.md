@@ -1,5 +1,7 @@
 # Cocos Challenge
 
+Versión en español: [`README.es.md`](README.es.md).
+
 A broker app for the [Cocos Capital React Native challenge](https://github.com/cocos-capital/cocos-challenge/blob/main/react-native-challenge.md). The user can:
 
 - see the instrument list and search it by ticker,
