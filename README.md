@@ -1,16 +1,42 @@
+<div align="center">
+
+<img src="src/assets/brand/icon.svg" width="96" height="96" alt="Cocos Challenge app icon" />
+
 # Cocos Challenge
 
-Versión en español: [`README.es.md`](README.es.md).
+**A broker app in React Native: market data, portfolio and orders, in Spanish and English, light and dark.**
 
-A broker app for the [Cocos Capital React Native challenge](https://github.com/cocos-capital/cocos-challenge/blob/main/react-native-challenge.md). The user can:
+Built for the [Cocos Capital React Native challenge](https://github.com/cocos-capital/cocos-challenge/blob/main/react-native-challenge.md).
 
-- see the instrument list and search it by ticker,
-- see the portfolio with market value, P&L and return,
-- send BUY and SELL orders (MARKET or LIMIT, by quantity or by ARS amount),
-- follow the status of each order,
-- switch between a light and a dark theme.
+[![CI](https://github.com/steppannws/cocos-challenge/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/steppannws/cocos-challenge/actions/workflows/ci.yml)
+![React Native 0.88](https://img.shields.io/badge/React_Native-0.88-61DAFB?logo=react&logoColor=white)
+![New Architecture](https://img.shields.io/badge/New_Architecture-Hermes-0A2462)
+![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
+![iOS and Android](https://img.shields.io/badge/platforms-iOS_%7C_Android-1F5FE0)
 
-Stack: bare React Native 0.88 (New Architecture, Hermes), TypeScript strict, TanStack Query, zustand, zod, i18next (Spanish and English).
+**English** · [Español](README.es.md)
+
+[Features](#features) · [Screenshots](#screenshots) · [Run it](#run-it) · [Technical decisions](#technical-decisions) · [Limitations](#limitations)
+
+<br />
+
+<img src="docs/screenshots/portfolio.png" width="220" alt="Portfolio" />&nbsp;&nbsp;
+<img src="docs/screenshots/order-form.png" width="220" alt="Order sheet" />&nbsp;&nbsp;
+<img src="docs/screenshots/dark-market.png" width="220" alt="Market, dark" />
+
+</div>
+
+## Features
+
+- **Market**: the instrument list with a "Top movers" row, and search by ticker.
+- **Portfolio**: market value, P&L and return for each holding, plus cash, totals and an allocation bar.
+- **Orders**: BUY and SELL, MARKET or LIMIT, by quantity or by ARS amount, with the live status of each order.
+- **Offline-first reads**: the last data opens with no connection; orders never queue.
+- **Light and dark theme**, Spanish and English.
+
+**Stack**: bare React Native 0.88 (New Architecture, Hermes) · TypeScript strict · TanStack Query · zustand · zod · i18next · MMKV · Vitest · Maestro.
+
+## Screenshots
 
 | Portfolio | Market | Search |
 |---|---|---|
@@ -71,7 +97,7 @@ The API also requires the `X-Enable-Bugs` header. The app sends `off`, which giv
 ## Checks
 
 ```bash
-pnpm verify        # typecheck + lint + 54 unit tests (the pre-commit hook runs it too)
+pnpm verify        # typecheck + lint + 66 unit tests (the pre-commit hook runs it too)
 pnpm verify:full   # verify + release bundles for both platforms + a dev-bundle check (CI runs this)
 scripts/run-app.sh ios .maestro/tour.yaml   # simulator + debug build + Maestro flow + screenshots in artifacts/screenshots/
 ```
@@ -123,7 +149,7 @@ The API sends prices as float pesos (`45.72`). The zod schemas in `src/schemas` 
 
 ### Testing strategy
 
-- **Vitest in Node, for logic only** (54 tests). The tests cover money math, derived values, the order form and the zod schemas. They also cover the HTTP client with a mock `fetch`: headers, each error kind, timeout and abort.
+- **Vitest in Node, for logic only** (66 tests). The tests cover money math, derived values, the order form and the zod schemas. They also cover the HTTP client with a mock `fetch`: headers, each error kind, timeout and abort.
 - `tests/platform.test.ts` reads source files and finds errors that occur only on a device. For example: i18n must be the first import, the cleartext-traffic placeholder must stay in the Android manifest, and each env key must be in `.env`.
 - **Maestro** tests the screens. `scripts/run-app.sh` starts a simulator, builds the debug app if necessary, runs a flow and saves the screenshots at a fixed path. The project has no snapshot tests: they break on each visual change and prove little.
 - `pnpm verify` runs in the pre-commit hook (`.githooks/pre-commit`, with gitleaks when it is installed). GitHub Actions runs `pnpm verify:full`.
