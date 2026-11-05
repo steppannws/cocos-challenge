@@ -1,7 +1,15 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  useWindowDimensions,
+  View,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ApiError } from '@/api/client';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
@@ -34,6 +42,13 @@ export function OrderSheetScreen({ route, navigation }: Props) {
   const { t } = useTranslation();
   const locale = useLocale();
   const isOnline = useIsOnline();
+  // KeyboardAvoidingView compares its layout frame (relative to the parent) with the keyboard's
+  // window position, so it needs the distance from the window top to the parent: the sheet's top
+  // offset on iOS, the status bar on Android (edge-to-edge, so adjustResize does nothing). Fabric
+  // cannot measure that, but the view ends at the window bottom, right above the bottom inset.
+  const window = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const [avoidingBottom, setAvoidingBottom] = useState(0);
 
   const instruments = useInstruments();
   const portfolio = usePortfolio();
@@ -98,7 +113,9 @@ export function OrderSheetScreen({ route, navigation }: Props) {
     <Screen testID="order-sheet" edges={Platform.OS === 'ios' ? ['bottom'] : ['top', 'bottom']}>
       <KeyboardAvoidingView
         style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior="padding"
+        keyboardVerticalOffset={window.height - insets.bottom - avoidingBottom}
+        onLayout={(e) => setAvoidingBottom(e.nativeEvent.layout.y + e.nativeEvent.layout.height)}
       >
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <View style={styles.header}>
@@ -210,56 +227,57 @@ export function OrderSheetScreen({ route, navigation }: Props) {
                   />
                 )}
               </View>
-
-              <Card style={styles.summary}>
-                <KeyValueRow
-                  label={t('order.estimatedTotal')}
-                  value={formatMoney(derived.totalCents, locale)}
-                  testID="order-total"
-                />
-                {visibleErrors.form ? (
-                  <Text variant="caption" color="loss" testID="order-form-error">
-                    {t(`order.errors.${visibleErrors.form}`)}
-                  </Text>
-                ) : null}
-              </Card>
-
-              {placeOrder.isError ? (
-                // No idempotency key: after a timeout or dropped connection the server may have
-                // the order, so warn before the user sends it twice.
-                placeOrder.error instanceof ApiError &&
-                (placeOrder.error.kind === 'timeout' || placeOrder.error.kind === 'network') ? (
-                  <Text
-                    variant="caption"
-                    color="warning"
-                    style={styles.resultText}
-                    testID="order-error"
-                  >
-                    {t('order.maybeSent')}
-                  </Text>
-                ) : (
-                  <ErrorState error={placeOrder.error} testID="order-error" />
-                )
-              ) : null}
-
-              <View style={styles.footer}>
-                {!isOnline ? (
-                  <Text variant="caption" color="warning" style={styles.resultText}>
-                    {t('order.offline')}
-                  </Text>
-                ) : null}
-                <Button
-                  label={t(`order.submit.${values.side}`)}
-                  onPress={submit}
-                  tone={values.side === 'BUY' ? 'gain' : 'loss'}
-                  disabled={!canSubmit}
-                  loading={placeOrder.isPending}
-                  testID="order-submit"
-                />
-              </View>
             </>
           )}
         </ScrollView>
+        {/* Outside the scroll view so the total and the button stay visible above the keyboard. */}
+        {placeOrder.isSuccess ? null : (
+          <View style={styles.footer}>
+            <Card style={styles.summary}>
+              <KeyValueRow
+                label={t('order.estimatedTotal')}
+                value={formatMoney(derived.totalCents, locale)}
+                testID="order-total"
+              />
+              {visibleErrors.form ? (
+                <Text variant="caption" color="loss" testID="order-form-error">
+                  {t(`order.errors.${visibleErrors.form}`)}
+                </Text>
+              ) : null}
+            </Card>
+
+            {placeOrder.isError ? (
+              // No idempotency key: after a timeout or dropped connection the server may have
+              // the order, so warn before the user sends it twice.
+              placeOrder.error instanceof ApiError &&
+              (placeOrder.error.kind === 'timeout' || placeOrder.error.kind === 'network') ? (
+                <Text
+                  variant="caption"
+                  color="warning"
+                  style={styles.resultText}
+                  testID="order-error"
+                >
+                  {t('order.maybeSent')}
+                </Text>
+              ) : (
+                <ErrorState error={placeOrder.error} testID="order-error" />
+              )
+            ) : null}
+            {!isOnline ? (
+              <Text variant="caption" color="warning" style={styles.resultText}>
+                {t('order.offline')}
+              </Text>
+            ) : null}
+            <Button
+              label={t(`order.submit.${values.side}`)}
+              onPress={submit}
+              tone={values.side === 'BUY' ? 'gain' : 'loss'}
+              disabled={!canSubmit}
+              loading={placeOrder.isPending}
+              testID="order-submit"
+            />
+          </View>
+        )}
       </KeyboardAvoidingView>
     </Screen>
   );

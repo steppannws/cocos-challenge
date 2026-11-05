@@ -3,14 +3,19 @@ import { colors, radii, spacing } from '@/theme';
 
 export const styles = StyleSheet.create({
   flex: { flex: 1 },
-  content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
+  content: { padding: spacing.lg, gap: spacing.lg },
   header: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   headerMain: { flex: 1, gap: spacing.xxs },
   close: { padding: spacing.md, borderRadius: radii.pill, backgroundColor: colors.card },
   field: { gap: spacing.sm },
   hint: { paddingHorizontal: spacing.xxs },
   summary: { gap: spacing.xs, borderRadius: radii.lg },
-  footer: { gap: spacing.sm },
+  footer: {
+    gap: spacing.md,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.lg,
+  },
   result: { alignItems: 'center', gap: spacing.md, paddingVertical: spacing.xl },
   resultText: { textAlign: 'center' },
   resultActions: { width: '100%', gap: spacing.sm, paddingTop: spacing.lg },
