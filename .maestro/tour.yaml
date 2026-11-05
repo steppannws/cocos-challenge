@@ -47,6 +47,11 @@ appId: ${APP_ID}
 - tapOn:
     id: 'order-quantity'
 - inputText: '2'
+- takeScreenshot: order-keyboard
+# The title may have scrolled off the top to keep the field above the keyboard and the pinned footer.
+- swipe:
+    start: 50%, 30%
+    end: 50%, 70%
 - tapOn:
     id: 'order-title'
 - takeScreenshot: order-form

@@ -1,6 +1,6 @@
-# Order sheet with the quantity keyboard open: scroll to the bottom and tap submit.
-# Regression test for the modal sheet keyboard inset: when the keyboard covers the button
-# the tap lands on a key and no result appears. No hideKeyboard (blind tap on iOS).
+# Order sheet with the quantity keyboard open: tap submit without scrolling.
+# Regression test for the footer above the keyboard in the modal sheet: when the keyboard
+# covers the button the tap lands on a key and no result appears. No hideKeyboard (blind tap on iOS).
 appId: ${APP_ID}
 ---
 - launchApp:
@@ -24,8 +24,6 @@ appId: ${APP_ID}
 - tapOn:
     id: 'order-quantity'
 - inputText: '2'
-- scroll
-- scroll
 - takeScreenshot: order-keyboard-open
 - tapOn:
     id: 'order-submit'

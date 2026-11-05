@@ -26,11 +26,19 @@ appId: ${APP_ID}
 - tapOn:
     id: 'order-price'
 - inputText: '40'
+# The footer (total + submit) is pinned above the keyboard: dismiss it to reach the fields below.
+- tapOn:
+    id: 'order-title'
 - tapOn:
     id: 'order-mode-amount'
 - tapOn:
     id: 'order-amount'
 - inputText: '1000'
+- takeScreenshot: limit-amount-keyboard
+# The title scrolled off the top to keep the amount field above the keyboard.
+- swipe:
+    start: 50%, 30%
+    end: 50%, 70%
 - tapOn:
     id: 'order-title'
 - takeScreenshot: limit-buy-form
