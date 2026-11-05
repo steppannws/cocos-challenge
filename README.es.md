@@ -1,16 +1,44 @@
+<div align="center">
+
+<img src="src/assets/brand/icon.svg" width="96" height="96" alt="Ícono de la app Cocos Challenge" />
+
 # Cocos Challenge
+
+**Una app de broker en React Native: mercado, portfolio y órdenes, en español e inglés, con tema claro y oscuro.**
+
+Hecha para el [desafío React Native de Cocos Capital](https://github.com/cocos-capital/cocos-challenge/blob/main/react-native-challenge.md).
+
+[![CI](https://github.com/steppannws/cocos-challenge/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/steppannws/cocos-challenge/actions/workflows/ci.yml)
+![React Native 0.88](https://img.shields.io/badge/React_Native-0.88-61DAFB?logo=react&logoColor=white)
+![New Architecture](https://img.shields.io/badge/New_Architecture-Hermes-0A2462)
+![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
+![iOS y Android](https://img.shields.io/badge/platforms-iOS_%7C_Android-1F5FE0)
+
+[English](README.md) · **Español**
 
 Traducción de [`README.md`](README.md). Si hay diferencias, vale la versión en inglés.
 
-Una app de broker para el [desafío React Native de Cocos Capital](https://github.com/cocos-capital/cocos-challenge/blob/main/react-native-challenge.md). El usuario puede:
+[Funciones](#funciones) · [Capturas](#capturas) · [Cómo correrla](#cómo-correrla) · [Decisiones técnicas](#decisiones-técnicas) · [Limitaciones](#limitaciones)
 
-- ver la lista de instrumentos y buscarlos por ticker,
-- ver el portfolio con valor de mercado, resultado y rendimiento,
-- enviar órdenes BUY y SELL (MARKET o LIMIT, por cantidad o por monto en ARS),
-- seguir el estado de cada orden,
-- cambiar entre un tema claro y uno oscuro.
+<br />
 
-Stack: React Native 0.88 bare (New Architecture, Hermes), TypeScript strict, TanStack Query, zustand, zod, i18next (español e inglés).
+<img src="docs/screenshots/portfolio.png" width="220" alt="Portfolio" />&nbsp;&nbsp;
+<img src="docs/screenshots/order-form.png" width="220" alt="Formulario de orden" />&nbsp;&nbsp;
+<img src="docs/screenshots/dark-market.png" width="220" alt="Mercado, oscuro" />
+
+</div>
+
+## Funciones
+
+- **Mercado**: la lista de instrumentos con una fila de "Mayores movimientos", y búsqueda por ticker.
+- **Portfolio**: valor de mercado, resultado y rendimiento de cada tenencia, más el efectivo, los totales y una barra de distribución.
+- **Órdenes**: BUY y SELL, MARKET o LIMIT, por cantidad o por monto en ARS, con el estado en vivo de cada orden.
+- **Lecturas offline**: los últimos datos se abren sin conexión; las órdenes nunca se encolan.
+- **Tema claro y oscuro**, español e inglés.
+
+**Stack**: React Native 0.88 bare (New Architecture, Hermes) · TypeScript strict · TanStack Query · zustand · zod · i18next · MMKV · Vitest · Maestro.
+
+## Capturas
 
 | Portfolio | Mercado | Búsqueda |
 |---|---|---|
@@ -71,7 +99,7 @@ La API también exige el header `X-Enable-Bugs`. La app manda `off`, que da el c
 ## Chequeos
 
 ```bash
-pnpm verify        # typecheck + lint + 54 tests unitarios (el hook de pre-commit también lo corre)
+pnpm verify        # typecheck + lint + 66 tests unitarios (el hook de pre-commit también lo corre)
 pnpm verify:full   # verify + bundles de release para ambas plataformas + chequeo del bundle de dev (CI corre esto)
 scripts/run-app.sh ios .maestro/tour.yaml   # simulador + build de debug + flujo de Maestro + capturas en artifacts/screenshots/
 ```
@@ -123,7 +151,7 @@ La API manda los precios como pesos en float (`45.72`). Los esquemas zod en `src
 
 ### Estrategia de testing
 
-- **Vitest en Node, solo para lógica** (54 tests). Los tests cubren la matemática de dinero, los valores derivados, el formulario de orden y los esquemas zod. También cubren el cliente HTTP con un `fetch` mockeado: headers, cada tipo de error, timeout y abort.
+- **Vitest en Node, solo para lógica** (66 tests). Los tests cubren la matemática de dinero, los valores derivados, el formulario de orden y los esquemas zod. También cubren el cliente HTTP con un `fetch` mockeado: headers, cada tipo de error, timeout y abort.
 - `tests/platform.test.ts` lee archivos fuente y encuentra errores que solo ocurren en un dispositivo. Por ejemplo: i18n tiene que ser el primer import, el placeholder de cleartext traffic tiene que seguir en el manifest de Android, y cada clave de env tiene que estar en `.env`.
 - **Maestro** prueba las pantallas. `scripts/run-app.sh` arranca un simulador, compila la app de debug si hace falta, corre un flujo y guarda las capturas en una ruta fija. El proyecto no tiene snapshot tests: se rompen con cada cambio visual y prueban poco.
 - `pnpm verify` corre en el hook de pre-commit (`.githooks/pre-commit`, con gitleaks cuando está instalado). GitHub Actions corre `pnpm verify:full`.
