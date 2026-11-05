@@ -1,7 +1,7 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
+import { Platform, Pressable, ScrollView, View } from 'react-native';
 import { ApiError } from '@/api/client';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
@@ -96,171 +96,173 @@ export function OrderSheetScreen({ route, navigation }: Props) {
 
   return (
     <Screen testID="order-sheet" edges={Platform.OS === 'ios' ? ['bottom'] : ['top', 'bottom']}>
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      {/* Not KeyboardAvoidingView: it measures its frame relative to the parent but the keyboard
+          in window coordinates, so inside a modal sheet its padding falls short by the sheet's
+          top offset. The native inset converts coordinates correctly. Android: adjustResize. */}
+      <ScrollView
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+        automaticallyAdjustKeyboardInsets
       >
-        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <View style={styles.header}>
-            <TickerAvatar ticker={ticker} />
-            <View style={styles.headerMain}>
-              <Text variant="heading" testID="order-title">
-                {t('order.title', { ticker })}
-              </Text>
-              <Text variant="caption" numberOfLines={1}>
-                {instrument?.name ?? ''}
-                {instrument?.name ? ' · ' : ''}
-                {t('order.lastPrice', { price: formatMoney(lastPriceCents, locale) })}
+        <View style={styles.header}>
+          <TickerAvatar ticker={ticker} />
+          <View style={styles.headerMain}>
+            <Text variant="heading" testID="order-title">
+              {t('order.title', { ticker })}
+            </Text>
+            <Text variant="caption" numberOfLines={1}>
+              {instrument?.name ?? ''}
+              {instrument?.name ? ' · ' : ''}
+              {t('order.lastPrice', { price: formatMoney(lastPriceCents, locale) })}
+            </Text>
+          </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('common.close')}
+            onPress={() => navigation.goBack()}
+            style={styles.close}
+            testID="order-close"
+          >
+            <Icon name="close" size={18} color={colors.text} />
+          </Pressable>
+        </View>
+
+        {placeOrder.isSuccess ? (
+          <OrderResult
+            order={placeOrder.data}
+            onNewOrder={() => {
+              placeOrder.reset();
+              form.reset();
+            }}
+            onDone={() => navigation.goBack()}
+          />
+        ) : (
+          <>
+            <View style={styles.field}>
+              <Text variant="label">{t('order.side')}</Text>
+              <SegmentedControl
+                options={sideOptions}
+                value={values.side}
+                onChange={(side) => form.set('side', side)}
+                testID="order-side"
+              />
+              {availability ? (
+                <Text variant="caption" style={styles.hint} testID="order-availability">
+                  {availability}
+                </Text>
+              ) : null}
+            </View>
+
+            <View style={styles.field}>
+              <Text variant="label">{t('order.type')}</Text>
+              <SegmentedControl
+                options={typeOptions}
+                value={values.type}
+                onChange={(type) => form.set('type', type)}
+                testID="order-type"
+              />
+              <Text variant="caption" style={styles.hint}>
+                {t(`order.typeHint.${values.type}`)}
               </Text>
             </View>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={t('common.close')}
-              onPress={() => navigation.goBack()}
-              style={styles.close}
-              testID="order-close"
-            >
-              <Icon name="close" size={18} color={colors.text} />
-            </Pressable>
-          </View>
 
-          {placeOrder.isSuccess ? (
-            <OrderResult
-              order={placeOrder.data}
-              onNewOrder={() => {
-                placeOrder.reset();
-                form.reset();
-              }}
-              onDone={() => navigation.goBack()}
-            />
-          ) : (
-            <>
-              <View style={styles.field}>
-                <Text variant="label">{t('order.side')}</Text>
-                <SegmentedControl
-                  options={sideOptions}
-                  value={values.side}
-                  onChange={(side) => form.set('side', side)}
-                  testID="order-side"
-                />
-                {availability ? (
-                  <Text variant="caption" style={styles.hint} testID="order-availability">
-                    {availability}
-                  </Text>
-                ) : null}
-              </View>
+            {values.type === 'LIMIT' ? (
+              <TextField
+                label={t('order.priceLabel')}
+                value={values.price}
+                onChangeText={(price) => form.set('price', price)}
+                keyboardType="decimal-pad"
+                error={errorText('price')}
+                testID="order-price"
+              />
+            ) : null}
 
-              <View style={styles.field}>
-                <Text variant="label">{t('order.type')}</Text>
-                <SegmentedControl
-                  options={typeOptions}
-                  value={values.type}
-                  onChange={(type) => form.set('type', type)}
-                  testID="order-type"
-                />
-                <Text variant="caption" style={styles.hint}>
-                  {t(`order.typeHint.${values.type}`)}
-                </Text>
-              </View>
-
-              {values.type === 'LIMIT' ? (
+            <View style={styles.field}>
+              <SegmentedControl
+                options={modeOptions}
+                value={values.mode}
+                onChange={(mode) => form.set('mode', mode)}
+                testID="order-mode"
+              />
+              {values.mode === 'quantity' ? (
                 <TextField
-                  label={t('order.priceLabel')}
-                  value={values.price}
-                  onChangeText={(price) => form.set('price', price)}
+                  label={t('order.quantityLabel')}
+                  value={values.quantity}
+                  onChangeText={(quantity) => form.set('quantity', quantity)}
+                  keyboardType="number-pad"
+                  large
+                  placeholder="0"
+                  error={errorText('quantity')}
+                  testID="order-quantity"
+                />
+              ) : (
+                <TextField
+                  label={t('order.amountLabel')}
+                  value={values.amount}
+                  onChangeText={(amount) => form.set('amount', amount)}
                   keyboardType="decimal-pad"
-                  error={errorText('price')}
-                  testID="order-price"
+                  large
+                  placeholder="0"
+                  error={errorText('amount')}
+                  hint={
+                    derived.quantity > 0
+                      ? t('order.maxShares', { count: derived.quantity })
+                      : undefined
+                  }
+                  testID="order-amount"
                 />
+              )}
+            </View>
+
+            <Card style={styles.summary}>
+              <KeyValueRow
+                label={t('order.estimatedTotal')}
+                value={formatMoney(derived.totalCents, locale)}
+                testID="order-total"
+              />
+              {visibleErrors.form ? (
+                <Text variant="caption" color="loss" testID="order-form-error">
+                  {t(`order.errors.${visibleErrors.form}`)}
+                </Text>
               ) : null}
+            </Card>
 
-              <View style={styles.field}>
-                <SegmentedControl
-                  options={modeOptions}
-                  value={values.mode}
-                  onChange={(mode) => form.set('mode', mode)}
-                  testID="order-mode"
-                />
-                {values.mode === 'quantity' ? (
-                  <TextField
-                    label={t('order.quantityLabel')}
-                    value={values.quantity}
-                    onChangeText={(quantity) => form.set('quantity', quantity)}
-                    keyboardType="number-pad"
-                    large
-                    placeholder="0"
-                    error={errorText('quantity')}
-                    testID="order-quantity"
-                  />
-                ) : (
-                  <TextField
-                    label={t('order.amountLabel')}
-                    value={values.amount}
-                    onChangeText={(amount) => form.set('amount', amount)}
-                    keyboardType="decimal-pad"
-                    large
-                    placeholder="0"
-                    error={errorText('amount')}
-                    hint={
-                      derived.quantity > 0
-                        ? t('order.maxShares', { count: derived.quantity })
-                        : undefined
-                    }
-                    testID="order-amount"
-                  />
-                )}
-              </View>
+            {placeOrder.isError ? (
+              // No idempotency key: after a timeout or dropped connection the server may have
+              // the order, so warn before the user sends it twice.
+              placeOrder.error instanceof ApiError &&
+              (placeOrder.error.kind === 'timeout' || placeOrder.error.kind === 'network') ? (
+                <Text
+                  variant="caption"
+                  color="warning"
+                  style={styles.resultText}
+                  testID="order-error"
+                >
+                  {t('order.maybeSent')}
+                </Text>
+              ) : (
+                <ErrorState error={placeOrder.error} testID="order-error" />
+              )
+            ) : null}
 
-              <Card style={styles.summary}>
-                <KeyValueRow
-                  label={t('order.estimatedTotal')}
-                  value={formatMoney(derived.totalCents, locale)}
-                  testID="order-total"
-                />
-                {visibleErrors.form ? (
-                  <Text variant="caption" color="loss" testID="order-form-error">
-                    {t(`order.errors.${visibleErrors.form}`)}
-                  </Text>
-                ) : null}
-              </Card>
-
-              {placeOrder.isError ? (
-                // No idempotency key: after a timeout or dropped connection the server may have
-                // the order, so warn before the user sends it twice.
-                placeOrder.error instanceof ApiError &&
-                (placeOrder.error.kind === 'timeout' || placeOrder.error.kind === 'network') ? (
-                  <Text
-                    variant="caption"
-                    color="warning"
-                    style={styles.resultText}
-                    testID="order-error"
-                  >
-                    {t('order.maybeSent')}
-                  </Text>
-                ) : (
-                  <ErrorState error={placeOrder.error} testID="order-error" />
-                )
+            <View style={styles.footer}>
+              {!isOnline ? (
+                <Text variant="caption" color="warning" style={styles.resultText}>
+                  {t('order.offline')}
+                </Text>
               ) : null}
-
-              <View style={styles.footer}>
-                {!isOnline ? (
-                  <Text variant="caption" color="warning" style={styles.resultText}>
-                    {t('order.offline')}
-                  </Text>
-                ) : null}
-                <Button
-                  label={t(`order.submit.${values.side}`)}
-                  onPress={submit}
-                  tone={values.side === 'BUY' ? 'gain' : 'loss'}
-                  disabled={!canSubmit}
-                  loading={placeOrder.isPending}
-                  testID="order-submit"
-                />
-              </View>
-            </>
-          )}
-        </ScrollView>
-      </KeyboardAvoidingView>
+              <Button
+                label={t(`order.submit.${values.side}`)}
+                onPress={submit}
+                tone={values.side === 'BUY' ? 'gain' : 'loss'}
+                disabled={!canSubmit}
+                loading={placeOrder.isPending}
+                testID="order-submit"
+              />
+            </View>
+          </>
+        )}
+      </ScrollView>
     </Screen>
   );
 }

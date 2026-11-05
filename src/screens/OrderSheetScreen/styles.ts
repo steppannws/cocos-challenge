@@ -2,7 +2,6 @@ import { StyleSheet } from 'react-native';
 import { colors, radii, spacing } from '@/theme';
 
 export const styles = StyleSheet.create({
-  flex: { flex: 1 },
   content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
   header: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   headerMain: { flex: 1, gap: spacing.xxs },
