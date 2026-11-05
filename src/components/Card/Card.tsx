@@ -1,6 +1,7 @@
 import { View, type ViewProps } from 'react-native';
-import { styles } from './styles';
+import { useStyles } from './styles';
 
 export function Card({ style, ...rest }: ViewProps) {
+  const styles = useStyles();
   return <View {...rest} style={[styles.card, style]} />;
 }

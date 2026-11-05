@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Platform, ScrollView, View } from 'react-native';
+import { Platform, ScrollView, Switch, View } from 'react-native';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { ErrorState } from '@/components/ErrorState';
@@ -10,7 +10,9 @@ import { SegmentedControl } from '@/components/SegmentedControl';
 import { Text } from '@/components/Text';
 import { TextField } from '@/components/TextField';
 import { useResetAccount } from '@/hooks/useOrders';
+import { useTabBarSpace } from '@/navigation/FloatingTabBar';
 import { type BugLevel, bugLevels, useSessionStore } from '@/store/session';
+import { useTheme } from '@/theme';
 import { styles } from './styles';
 
 const bugLevelOptions = bugLevels.map((level) => ({ value: level, label: level }));
@@ -21,7 +23,10 @@ const reactNativeVersion = `${major}.${minor}.${patch}`;
 export function AccountScreen() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const { candidateId, bugLevel, setCandidateId, setBugLevel } = useSessionStore();
+  const { candidateId, bugLevel, setCandidateId, setBugLevel, setThemePreference } =
+    useSessionStore();
+  const { scheme, colors } = useTheme();
+  const tabBarSpace = useTabBarSpace();
   const [draft, setDraft] = useState(candidateId);
   const reset = useResetAccount();
 
@@ -36,8 +41,32 @@ export function AccountScreen() {
 
   return (
     <Screen testID="account-screen">
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        contentContainerStyle={[styles.content, { paddingBottom: tabBarSpace }]}
+        keyboardShouldPersistTaps="handled"
+      >
         <Text variant="title">{t('account.title')}</Text>
+
+        <Card>
+          <Text variant="label">{t('account.appearance')}</Text>
+          <View style={styles.switchRow}>
+            <View style={styles.switchText}>
+              <Text variant="bodyStrong">{t('account.darkMode')}</Text>
+              <Text variant="caption">{t('account.darkModeHint')}</Text>
+            </View>
+            <Switch
+              value={scheme === 'dark'}
+              // An explicit choice: from now on the app ignores the system appearance.
+              onValueChange={(dark) => setThemePreference(dark ? 'dark' : 'light')}
+              trackColor={{ false: colors.surfaceStrong, true: colors.primary }}
+              thumbColor={colors.card}
+              ios_backgroundColor={colors.surfaceStrong}
+              accessibilityRole="switch"
+              accessibilityLabel={t('account.darkMode')}
+              testID="account-dark-mode"
+            />
+          </View>
+        </Card>
 
         <Card>
           <TextField

@@ -1,13 +1,16 @@
 import { StyleSheet } from 'react-native';
-import { colors, radii, spacing } from '@/theme';
+import { makeStyles, radii, spacing } from '@/theme';
 
-export const styles = StyleSheet.create({
-  pill: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xxs,
-    borderRadius: radii.pill,
-  },
-  gain: { backgroundColor: colors.gain },
-  loss: { backgroundColor: colors.loss },
-  textMuted: { backgroundColor: colors.surface },
-});
+// Tinted chip in light mode; in dark mode the muted tones are transparent, so it reads as text.
+export const useStyles = makeStyles((colors) =>
+  StyleSheet.create({
+    pill: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xxs,
+      borderRadius: radii.pill,
+    },
+    gain: { backgroundColor: colors.gainMuted },
+    loss: { backgroundColor: colors.lossMuted },
+    textMuted: { backgroundColor: colors.transparent },
+  }),
+);

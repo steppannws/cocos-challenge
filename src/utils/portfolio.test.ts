@@ -106,4 +106,14 @@ describe('topMovers', () => {
     expect(topMovers(items, 2).map((m) => m.item.id)).toEqual(['down', 'up']);
     expect(topMovers(items).map((m) => m.item.id)).toEqual(['down', 'up', 'flat']);
   });
+  it('keeps only rises or only falls when a direction is given', () => {
+    const items = [
+      { id: 'up', lastPriceCents: 110, closePriceCents: 100 },
+      { id: 'bigUp', lastPriceCents: 130, closePriceCents: 100 },
+      { id: 'down', lastPriceCents: 80, closePriceCents: 100 },
+      { id: 'flat', lastPriceCents: 100, closePriceCents: 100 },
+    ];
+    expect(topMovers(items, 5, 'gainers').map((m) => m.item.id)).toEqual(['bigUp', 'up']);
+    expect(topMovers(items, 5, 'losers').map((m) => m.item.id)).toEqual(['down']);
+  });
 });

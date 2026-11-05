@@ -1,5 +1,5 @@
 import Svg, { Circle, Path } from 'react-native-svg';
-import { colors } from '@/theme';
+import { useTheme } from '@/theme';
 
 // Outline icons (24×24 grid, stroke-based; paths after Lucide, ISC license).
 const icons = {
@@ -10,6 +10,10 @@ const icons = {
   search: ['circle:11,11,8', 'm21 21-4.35-4.35'],
   close: ['M18 6 6 18', 'M6 6l12 12'],
   check: ['M20 6 9 17l-5-5'],
+  trendUp: ['M7 7h10v10', 'M7 17 17 7'],
+  trendDown: ['m7 7 10 10', 'M17 7v10H7'],
+  chevronDown: ['m6 9 6 6 6-6'],
+  swap: ['M7 7h11l-3-3', 'M17 17H6l3 3'],
   plus: ['M5 12h14', 'M12 5v14'],
   clock: ['circle:12,12,10', 'M12 6v6l4 2'],
   alert: ['circle:12,12,10', 'M12 8v4', 'M12 16h.01'],
@@ -29,14 +33,15 @@ export type IconName = keyof typeof icons;
 
 type Props = { name: IconName; size?: number; color?: string };
 
-export function Icon({ name, size = 24, color = colors.text }: Props) {
+export function Icon({ name, size = 24, color }: Props) {
+  const { colors } = useTheme();
   return (
     <Svg
       width={size}
       height={size}
       viewBox="0 0 24 24"
       fill="none"
-      stroke={color}
+      stroke={color ?? colors.text}
       strokeWidth={2}
       strokeLinecap="round"
       strokeLinejoin="round"

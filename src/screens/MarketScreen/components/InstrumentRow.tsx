@@ -8,13 +8,14 @@ import { useLocale } from '@/hooks/useLocale';
 import type { Instrument } from '@/schemas/instrument';
 import { formatMoney, formatPercent } from '@/utils/format';
 import { dailyReturn } from '@/utils/portfolio';
-import { rowStyles as styles } from '../styles';
+import { useStyles } from '../styles';
 
 type Props = { instrument: Instrument; onPress: (instrument: Instrument) => void };
 
 export const InstrumentRow = memo(function InstrumentRow({ instrument, onPress }: Props) {
   const { t } = useTranslation();
   const locale = useLocale();
+  const { rowStyles: styles } = useStyles();
   const change = dailyReturn(instrument.lastPriceCents, instrument.closePriceCents);
   return (
     <Pressable

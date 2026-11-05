@@ -2,9 +2,10 @@ import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 import { Text } from '@/components/Text';
 import { useIsOnline } from '@/hooks/useIsOnline';
-import { styles } from './styles';
+import { useStyles } from './styles';
 
 export function OfflineBanner() {
+  const styles = useStyles();
   const { t } = useTranslation();
   const isOnline = useIsOnline();
   if (isOnline) {

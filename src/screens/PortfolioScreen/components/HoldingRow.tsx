@@ -8,13 +8,15 @@ import { useLocale } from '@/hooks/useLocale';
 import type { Holding } from '@/schemas/portfolio';
 import { formatMoney, formatPercent } from '@/utils/format';
 import { holdingMetrics } from '@/utils/portfolio';
-import { rowStyles as styles } from '../styles';
+import { useStyles } from '../styles';
 
-type Props = { holding: Holding; name?: string; onPress: (holding: Holding) => void };
+type Props = { holding: Holding; onPress: (holding: Holding) => void };
 
-export const HoldingRow = memo(function HoldingRow({ holding, name, onPress }: Props) {
+// No company name: ticker and value, then the position, then P&L. Nothing truncates.
+export const HoldingRow = memo(function HoldingRow({ holding, onPress }: Props) {
   const { t } = useTranslation();
   const locale = useLocale();
+  const { rowStyles: styles } = useStyles();
   const metrics = holdingMetrics(holding);
   return (
     <Pressable
@@ -26,31 +28,20 @@ export const HoldingRow = memo(function HoldingRow({ holding, name, onPress }: P
     >
       <TickerAvatar ticker={holding.ticker} />
       <View style={styles.main}>
-        <Text variant="bodyStrong">{holding.ticker}</Text>
-        {name ? (
-          <Text variant="caption" numberOfLines={1}>
-            {name}
-          </Text>
-        ) : null}
-        <Text variant="caption" numberOfLines={1}>
+        <View style={styles.line}>
+          <Text variant="bodyStrong">{holding.ticker}</Text>
+          <Text variant="bodyStrong">{formatMoney(metrics.marketValueCents, locale)}</Text>
+        </View>
+        <Text variant="caption">
           {t('portfolio.position', {
             shares: t('portfolio.shares', { count: holding.quantity }),
             price: formatMoney(holding.avgCostCents, locale),
           })}
         </Text>
-      </View>
-      <View style={styles.trailing}>
-        <Text variant="bodyStrong">{formatMoney(metrics.marketValueCents, locale)}</Text>
         <DeltaText
-          pill
           value={metrics.pnlCents}
-          text={formatPercent(metrics.returnRatio, locale)}
+          text={`${formatMoney(metrics.pnlCents, locale, { signed: true })} · ${formatPercent(metrics.returnRatio, locale)}`}
           variant="captionStrong"
-        />
-        <DeltaText
-          value={metrics.pnlCents}
-          text={formatMoney(metrics.pnlCents, locale, { signed: true })}
-          variant="caption"
         />
       </View>
     </Pressable>

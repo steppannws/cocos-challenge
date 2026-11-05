@@ -1,7 +1,7 @@
 import { ActivityIndicator, Pressable } from 'react-native';
 import { Text } from '@/components/Text';
-import { colors } from '@/theme';
-import { labelStyles, styles } from './styles';
+import { useTheme } from '@/theme';
+import { useStyles } from './styles';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost';
 export type ButtonTone = 'default' | 'gain' | 'loss';
@@ -26,6 +26,10 @@ export function Button({
   loading = false,
   testID,
 }: Props) {
+  const { styles, labelStyles } = useStyles();
+  const { colors } = useTheme();
+  // Buy/sell: a primary button filled with the gain or loss color.
+  const toned = variant === 'primary' && tone !== 'default' ? tone : null;
   // Disabled while loading: a double tap must not send a second request.
   const inactive = disabled || loading;
   return (
@@ -39,15 +43,25 @@ export function Button({
       style={({ pressed }) => [
         styles.base,
         styles[variant],
-        variant === 'primary' && tone !== 'default' && styles[tone],
+        toned && styles[toned],
         inactive && styles.disabled,
         pressed && styles.pressed,
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'primary' ? colors.textOnPrimary : colors.primary} />
+        <ActivityIndicator
+          color={
+            toned
+              ? toned === 'gain'
+                ? colors.onGain
+                : colors.onLoss
+              : variant === 'primary'
+                ? colors.textOnPrimary
+                : colors.primary
+          }
+        />
       ) : (
-        <Text variant="bodyStrong" style={labelStyles[variant]}>
+        <Text variant="bodyStrong" style={toned ? labelStyles[toned] : labelStyles[variant]}>
           {label}
         </Text>
       )}

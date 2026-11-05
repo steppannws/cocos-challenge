@@ -33,7 +33,9 @@
     "noResults": "No encontramos \"{{query}}\".",
     "openOrder": "Operar {{ticker}}",
     "topMovers": "Mayores movimientos",
-    "allStocks": "Todas las acciones"
+    "allStocks": "Todas las acciones",
+    "gainers": "Suben",
+    "losers": "Bajan"
   },
   "portfolio": {
     "title": "Portfolio",
@@ -63,6 +65,13 @@
     "line": "{{side}} · {{type}} · {{quantity}} × {{price}}",
     "lineNoPrice": "{{side}} · {{type}} · {{quantity}}",
     "orderId": "#{{id}}",
+    "rowLine": "{{type}} · {{quantity}} × {{price}}",
+    "rowLineNoPrice": "{{type}} · {{quantity}}",
+    "filter": {
+      "all": "Todas",
+      "label": "Filtrar por estado",
+      "empty": "No hay órdenes con este estado."
+    },
     "openDetail": "Abrir orden de {{ticker}}, {{status}}"
   },
   "orderDetail": {
@@ -107,6 +116,17 @@
     "maxShares_one": "Con ese monto comprás {{count}} acción",
     "maxShares_other": "Con ese monto comprás {{count}} acciones",
     "estimatedTotal": "Total estimado",
+    "youInvest": "Invertís",
+    "youSell": "Vendés",
+    "max": "Máx",
+    "lineTotal": "{{quantity}} × {{price}}",
+    "unspent": "Sin usar, queda como efectivo",
+    "cashAfter": "Efectivo después de la orden",
+    "sharesAfter": "Acciones después de la orden",
+    "approxShares_one": "≈ {{count}} acción · {{total}}",
+    "approxShares_other": "≈ {{count}} acciones · {{total}}",
+    "switchToAmount": "Ingresar un monto en ARS",
+    "switchToQuantity": "Ingresar una cantidad de acciones",
     "submit": { "BUY": "Confirmar compra", "SELL": "Confirmar venta" },
     "offline": "Necesitás conexión para enviar una orden.",
     "maybeSent": "Se cortó la conexión al enviar. La orden puede haber llegado: revisá Órdenes antes de volver a intentar.",
@@ -140,6 +160,9 @@
     "reset": "Reiniciar cuenta",
     "resetHint": "Borra tus órdenes y tenencias. Volvés a 1.000.000 ARS.",
     "resetDone": "Cuenta reiniciada.",
-    "about": "Cocos Challenge · React Native {{version}}"
+    "about": "Cocos Challenge · React Native {{version}}",
+    "appearance": "Apariencia",
+    "darkMode": "Modo oscuro",
+    "darkModeHint": "Sigue la configuración del teléfono hasta que lo cambies acá."
   }
 }

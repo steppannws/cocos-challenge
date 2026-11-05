@@ -6,16 +6,16 @@ import { QueryStateView } from '@/components/QueryStateView';
 import { Screen } from '@/components/Screen';
 import { SectionHeader } from '@/components/SectionHeader';
 import { Text } from '@/components/Text';
-import { useInstrumentsById } from '@/hooks/useInstrumentsById';
 import { usePortfolio } from '@/hooks/usePortfolio';
 import { useRefresh } from '@/hooks/useRefresh';
 import type { Holding } from '@/schemas/portfolio';
-import { colors } from '@/theme';
+import { useTheme } from '@/theme';
 import { portfolioAllocation, portfolioTotals } from '@/utils/portfolio';
 import { HeaderBand } from './components/HeaderBand';
 import { HoldingRow } from './components/HoldingRow';
 import { PortfolioSummary } from './components/PortfolioSummary';
-import { styles } from './styles';
+import { useTabBarSpace } from '@/navigation/FloatingTabBar';
+import { useStyles } from './styles';
 
 const keyExtractor = (item: Holding) => String(item.instrumentId);
 
@@ -23,7 +23,9 @@ export function PortfolioScreen() {
   const { t } = useTranslation();
   const navigation = useNavigation();
   const portfolio = usePortfolio();
-  const instrumentsById = useInstrumentsById();
+  const { styles } = useStyles();
+  const { colors } = useTheme();
+  const tabBarSpace = useTabBarSpace();
   const { refreshing, onRefresh } = useRefresh(portfolio.refetch);
 
   // Everything on this screen derives from the /portfolio response; nothing is stored twice.
@@ -55,13 +57,7 @@ export function PortfolioScreen() {
       <FlatList
         data={holdings}
         keyExtractor={keyExtractor}
-        renderItem={({ item }) => (
-          <HoldingRow
-            holding={item}
-            name={instrumentsById.get(item.instrumentId)?.name}
-            onPress={openOrder}
-          />
-        )}
+        renderItem={({ item }) => <HoldingRow holding={item} onPress={openOrder} />}
         ListHeaderComponent={
           <View>
             <HeaderBand>
@@ -86,7 +82,7 @@ export function PortfolioScreen() {
           />
         }
         style={styles.listBackground}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={{ paddingBottom: tabBarSpace }}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}

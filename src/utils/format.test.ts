@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { formatDateTime, formatMoney, formatPercent, formatQuantity } from './format';
+import {
+  formatDate,
+  formatDateTime,
+  formatMoney,
+  formatPercent,
+  formatQuantity,
+  formatTime,
+} from './format';
 
 // Intl output uses non-breaking spaces; normalize before asserting.
 const plain = (s: string) => s.replace(/\s/g, ' ');
@@ -43,5 +50,14 @@ describe('formatDateTime', () => {
   it('renders ISO strings and tolerates garbage', () => {
     expect(formatDateTime('2026-10-31T00:58:07.489Z', 'en-US')).toMatch(/\d{2}\/\d{2}\/2026/);
     expect(formatDateTime('not a date', 'en-US')).toBe('—');
+  });
+});
+
+describe('formatDate / formatTime', () => {
+  it('splits an ISO string into day and time, and tolerates garbage', () => {
+    const iso = '2026-10-31T12:58:07.489Z';
+    expect(formatDate(iso, 'en-US')).toMatch(/^\d{2}\/\d{2}\/2026$/);
+    expect(formatTime(iso, 'en-US')).toMatch(/^\d{2}:\d{2}/);
+    expect(formatDate('not a date', 'en-US')).toBe('—');
   });
 });

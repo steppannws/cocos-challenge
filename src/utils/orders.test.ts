@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { hasSettled, maxSharesForAmount, orderTotalCents } from './orders';
+import { groupByDay, hasSettled, maxSharesForAmount, orderTotalCents } from './orders';
 
 describe('maxSharesForAmount', () => {
   it('floors to whole shares', () => {
@@ -29,5 +29,23 @@ describe('hasSettled', () => {
   it('is false while it is still pending or for new orders', () => {
     expect(hasSettled([pending], [pending])).toBe(false);
     expect(hasSettled([], [{ id: '2', status: 'FILLED' }])).toBe(false);
+  });
+});
+
+describe('groupByDay', () => {
+  it('starts a section each time the day label changes', () => {
+    const items = [
+      { id: 'a', createdAt: '2026-11-05T10:00:00Z' },
+      { id: 'b', createdAt: '2026-11-05T09:00:00Z' },
+      { id: 'c', createdAt: '2026-11-04T23:00:00Z' },
+    ];
+    const sections = groupByDay(items, (iso) => iso.slice(0, 10));
+    expect(sections.map((s) => [s.title, s.data.map((i) => i.id)])).toEqual([
+      ['2026-11-05', ['a', 'b']],
+      ['2026-11-04', ['c']],
+    ]);
+  });
+  it('returns no sections for no items', () => {
+    expect(groupByDay([], (iso) => iso)).toEqual([]);
   });
 });
