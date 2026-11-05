@@ -34,7 +34,7 @@ export type OrderFieldErrors = Partial<
 >;
 
 export type DerivedOrder = {
-  /** Whole shares to send: typed, or the max the amount buys at the last price. */
+  /** Whole shares to send: typed, or the max the amount buys at `unitPriceCents`. */
   quantity: number;
   /** Price the order reserves at: the limit price, or the last price for MARKET. */
   unitPriceCents: number;
@@ -110,8 +110,9 @@ export function deriveOrder(values: OrderFormValues, ctx: OrderFormContext): Der
     if (!Number.isFinite(amount) || amount <= 0) {
       errors.amount = 'amountPositive';
     } else {
-      // Spec: an ARS amount becomes the max whole shares at the last price.
-      quantity = maxSharesForAmount(toCents(amount), ctx.lastPriceCents);
+      // Spec: an ARS amount becomes the max whole shares at the last price. A LIMIT order sizes at
+      // its limit price instead, so the share count and the total use the same price.
+      quantity = maxSharesForAmount(toCents(amount), unitPriceCents);
       if (quantity === 0) {
         errors.amount = 'amountTooSmall';
       }

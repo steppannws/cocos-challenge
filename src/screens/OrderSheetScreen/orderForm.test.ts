@@ -103,13 +103,13 @@ describe('deriveOrder', () => {
     });
   });
 
-  it('limit buy by amount still sizes the order with the last price', () => {
+  it('limit buy by amount sizes the order with the limit price', () => {
     const d = deriveOrder(
       { ...buy, type: 'LIMIT', mode: 'amount', amount: '1000', price: '40' },
       ctx,
     );
-    expect(d.quantity).toBe(21);
-    expect(d.totalCents).toBe(21 * 4000);
+    expect(d.quantity).toBe(25);
+    expect(d.totalCents).toBe(25 * 4000);
   });
 
   it('rejects a buy above the available cash, but not when cash is unknown', () => {
