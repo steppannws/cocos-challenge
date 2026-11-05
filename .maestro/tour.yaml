@@ -1,0 +1,106 @@
+# Portfolio → Market → search → order sheet → MARKET BUY of 2 shares → result → Portfolio → Orders → order detail → Account.
+# Needs the API online and a candidate with cash (the default .env candidate starts with 1,000,000 ARS).
+# No hideKeyboard: on iOS Maestro implements it with a blind tap. Taps on a title dismiss it instead.
+appId: ${APP_ID}
+---
+- launchApp:
+    clearState: true
+# Portfolio is the first tab: the app opens there.
+- extendedWaitUntil:
+    visible:
+      id: 'portfolio-screen'
+    timeout: 120000
+- tapOn:
+    id: 'tab-market'
+- extendedWaitUntil:
+    visible:
+      id: 'market-screen'
+    timeout: 120000
+- extendedWaitUntil:
+    visible:
+      id: 'instrument-row-DYCA'
+    timeout: 30000
+- takeScreenshot: market
+- tapOn:
+    id: 'market-search'
+- inputText: 'CAP'
+- extendedWaitUntil:
+    visible:
+      id: 'instrument-row-CAPX'
+    timeout: 15000
+- takeScreenshot: market-search
+- tapOn:
+    id: 'market-search-clear'
+- tapOn:
+    id: 'market-title'
+- extendedWaitUntil:
+    visible:
+      id: 'instrument-row-DYCA'
+    timeout: 15000
+- tapOn:
+    id: 'instrument-row-DYCA'
+- extendedWaitUntil:
+    visible:
+      id: 'order-sheet'
+    timeout: 15000
+- takeScreenshot: order-sheet
+- tapOn:
+    id: 'order-quantity'
+- inputText: '2'
+- takeScreenshot: order-keyboard
+# The title may have scrolled off the top to keep the field above the keyboard and the pinned footer.
+- swipe:
+    start: 50%, 30%
+    end: 50%, 70%
+- tapOn:
+    id: 'order-title'
+- takeScreenshot: order-form
+- tapOn:
+    id: 'order-submit'
+- extendedWaitUntil:
+    visible:
+      id: 'order-result'
+    timeout: 30000
+- takeScreenshot: order-result
+- tapOn:
+    id: 'order-done'
+# The modal animates out; the tab bar is not hittable until it is gone.
+- extendedWaitUntil:
+    notVisible:
+      id: 'order-sheet'
+    timeout: 10000
+- tapOn:
+    id: 'tab-portfolio'
+- extendedWaitUntil:
+    visible:
+      id: 'holding-row-DYCA'
+    timeout: 30000
+- takeScreenshot: portfolio
+- tapOn:
+    id: 'tab-orders'
+- extendedWaitUntil:
+    visible:
+      id: 'orders-list'
+    timeout: 30000
+- takeScreenshot: orders
+- tapOn:
+    id: 'order-row-[0-9]+'
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: 'order-detail-status'
+    timeout: 15000
+- takeScreenshot: order-detail
+- tapOn:
+    id: 'order-detail-close'
+- extendedWaitUntil:
+    notVisible:
+      id: 'order-detail'
+    timeout: 10000
+- tapOn:
+    id: 'tab-account'
+- extendedWaitUntil:
+    visible:
+      id: 'account-screen'
+    timeout: 15000
+- takeScreenshot: account

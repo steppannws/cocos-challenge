@@ -1,5 +1,145 @@
 {
-  "app": {
-    "name": "Cocos Challenge"
+  "app": { "name": "Cocos Challenge" },
+  "tabs": {
+    "market": "Market",
+    "portfolio": "Portfolio",
+    "orders": "Orders",
+    "account": "Account"
+  },
+  "common": {
+    "retry": "Retry",
+    "loading": "Loading…",
+    "close": "Close",
+    "cancel": "Cancel",
+    "save": "Save",
+    "offline": "You're offline. Showing saved data.",
+    "errorTitle": "We couldn't load the data",
+    "crashTitle": "Something went wrong",
+    "crashBody": "The app hit an unexpected error. You can try again.",
+    "updatedAt": "Updated {{time}}"
+  },
+  "errors": {
+    "network": "Can't reach the server.",
+    "timeout": "The server took too long to respond.",
+    "shape": "The server returned an unexpected response.",
+    "http": "Server error ({{status}}): {{message}}",
+    "unknown": "An unexpected error occurred."
+  },
+  "market": {
+    "title": "Market",
+    "searchPlaceholder": "Search by ticker",
+    "clearSearch": "Clear search",
+    "empty": "No instruments to show.",
+    "noResults": "No results for \"{{query}}\".",
+    "openOrder": "Trade {{ticker}}",
+    "topMovers": "Top movers",
+    "allStocks": "All stocks"
+  },
+  "portfolio": {
+    "title": "Portfolio",
+    "totalValue": "Total value",
+    "cash": "Available cash",
+    "invested": "Invested",
+    "pnl": "Total return",
+    "holdings": "Holdings",
+    "empty": "You don't have any positions yet.",
+    "emptyHint": "Buy an instrument from the Market tab.",
+    "shares_one": "{{count}} share",
+    "shares_other": "{{count}} shares",
+    "position": "{{shares}} @ {{price}}",
+    "allocation": "Allocation",
+    "showBalance": "Show balance",
+    "hideBalance": "Hide balance",
+    "balanceHidden": "Balance hidden",
+    "actions": { "invest": "Invest", "orders": "Orders", "account": "Account" }
+  },
+  "orders": {
+    "title": "Orders",
+    "empty": "You haven't sent any orders yet.",
+    "emptyHint": "Tap an instrument in Market to trade.",
+    "status": { "FILLED": "Filled", "PENDING": "Pending", "REJECTED": "Rejected" },
+    "side": { "BUY": "Buy", "SELL": "Sell" },
+    "type": { "MARKET": "Market", "LIMIT": "Limit" },
+    "line": "{{side}} · {{type}} · {{quantity}} × {{price}}",
+    "lineNoPrice": "{{side}} · {{type}} · {{quantity}}",
+    "orderId": "#{{id}}",
+    "openDetail": "Open {{ticker}} order, {{status}}"
+  },
+  "orderDetail": {
+    "notFound": "We couldn't find this order.",
+    "side": "Side",
+    "type": "Type",
+    "quantity": "Quantity",
+    "price": "Price",
+    "limitPrice": "Limit price",
+    "total": "Total",
+    "createdAt": "Sent",
+    "id": "Order ID",
+    "tradeAgain": "Trade {{ticker}} again",
+    "explanationTitle": {
+      "FILLED": "Order filled",
+      "PENDING": "Waiting for your price",
+      "REJECTED": "Why was it rejected?"
+    },
+    "explanation": {
+      "FILLED_MARKET": "It executed right away at {{price}} per share.",
+      "FILLED_LIMIT": "The market reached your limit price of {{price}} and the order executed.",
+      "PENDING": "The order stays open until the market accepts your limit price. This list refreshes every 15 seconds while an order is pending.",
+      "REJECTED": "The market doesn't report the reason for a rejection. Common causes: not enough cash (buy) or shares (sell) when the order arrived, or a limit price the market didn't accept. You can send it again with other values."
+    }
+  },
+  "order": {
+    "title": "Trade {{ticker}}",
+    "side": "Side",
+    "type": "Order type",
+    "typeHint": {
+      "MARKET": "Executes now at the last price.",
+      "LIMIT": "Stays pending until the market accepts your price."
+    },
+    "mode": { "quantity": "By quantity", "amount": "By amount" },
+    "quantityLabel": "Number of shares",
+    "amountLabel": "Amount in ARS",
+    "priceLabel": "Limit price (ARS)",
+    "lastPrice": "Last price {{price}}",
+    "availableCash": "Available cash {{amount}}",
+    "availableShares_one": "You own {{count}} share",
+    "availableShares_other": "You own {{count}} shares",
+    "maxShares_one": "That amount buys {{count}} share",
+    "maxShares_other": "That amount buys {{count}} shares",
+    "estimatedTotal": "Estimated total",
+    "submit": { "BUY": "Confirm buy", "SELL": "Confirm sell" },
+    "offline": "You need a connection to send an order.",
+    "maybeSent": "We lost the connection while sending. The order may have gone through: check Orders before you try again.",
+    "result": {
+      "title": "Order sent",
+      "id": "ID {{id}}",
+      "FILLED": "Your order was filled.",
+      "PENDING": "Your order is pending in the market.",
+      "REJECTED": "The market rejected the order."
+    },
+    "newOrder": "New order",
+    "done": "Done",
+    "errors": {
+      "quantityPositive": "Enter a quantity greater than 0.",
+      "quantityFractional": "Fractional shares aren't allowed. Enter a whole number.",
+      "amountPositive": "Enter an amount greater than 0.",
+      "amountTooSmall": "That amount doesn't buy a single share.",
+      "priceRequired": "Enter a limit price greater than 0.",
+      "insufficientCash": "You don't have enough cash.",
+      "insufficientShares": "You don't have enough shares to sell."
+    }
+  },
+  "account": {
+    "title": "Account",
+    "candidateId": "Candidate ID",
+    "candidateIdHint": "The API isolates your portfolio and orders by this identifier.",
+    "candidateIdRequired": "Enter an identifier.",
+    "saved": "Saved",
+    "devTools": "Developer tools",
+    "bugLevel": "API bug level (X-Enable-Bugs)",
+    "reset": "Reset account",
+    "resetHint": "Deletes your orders and holdings. Back to 1,000,000 ARS.",
+    "resetDone": "Account reset.",
+    "about": "Cocos Challenge · React Native {{version}}"
   }
 }

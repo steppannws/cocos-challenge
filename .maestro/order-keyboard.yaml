@@ -1,0 +1,34 @@
+# Order sheet with the quantity keyboard open: tap submit without scrolling.
+# Regression test for the footer above the keyboard in the modal sheet: when the keyboard
+# covers the button the tap lands on a key and no result appears. No hideKeyboard (blind tap on iOS).
+appId: ${APP_ID}
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: 'portfolio-screen'
+    timeout: 120000
+- tapOn:
+    id: 'tab-market'
+- extendedWaitUntil:
+    visible:
+      id: 'instrument-row-DYCA'
+    timeout: 30000
+- tapOn:
+    id: 'instrument-row-DYCA'
+- extendedWaitUntil:
+    visible:
+      id: 'order-sheet'
+    timeout: 15000
+- tapOn:
+    id: 'order-quantity'
+- inputText: '2'
+- takeScreenshot: order-keyboard-open
+- tapOn:
+    id: 'order-submit'
+- extendedWaitUntil:
+    visible:
+      id: 'order-result'
+    timeout: 30000
+- takeScreenshot: order-keyboard-result

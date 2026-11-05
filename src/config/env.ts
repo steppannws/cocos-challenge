@@ -13,5 +13,3 @@ export const env = schema.parse({
   CANDIDATE_ID: Config.CANDIDATE_ID,
   SENTRY_DSN: Config.SENTRY_DSN,
 });
-
-export type Env = typeof env;

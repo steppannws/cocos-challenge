@@ -1,0 +1,18 @@
+# Smoke flow: the debug build opens, loads the bundle from Metro and renders the Portfolio tab, then the Market tab.
+# scripts/run-app.sh passes APP_ID.
+appId: ${APP_ID}
+---
+- launchApp:
+    clearState: true
+# Portfolio is the first tab: the app opens there.
+- extendedWaitUntil:
+    visible:
+      id: 'portfolio-screen'
+    timeout: 120000
+- tapOn:
+    id: 'tab-market'
+- extendedWaitUntil:
+    visible:
+      id: 'market-screen'
+    timeout: 120000
+- takeScreenshot: market

@@ -5,7 +5,7 @@ import en from './locales/en.json';
 import es from './locales/es.json';
 
 export const resources = { es: { translation: es }, en: { translation: en } } as const;
-export type Language = keyof typeof resources;
+type Language = keyof typeof resources;
 
 const supported = Object.keys(resources) as Language[];
 const isSupported = (code: string | undefined): code is Language =>

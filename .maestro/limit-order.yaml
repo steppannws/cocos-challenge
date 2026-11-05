@@ -1,0 +1,58 @@
+# LIMIT by amount: sizing hint, SELL without shares → validation error, then a LIMIT BUY (PENDING).
+# Needs a candidate with no CAPX shares: the SELL step expects the "not enough shares" error. Reset the account first if needed.
+appId: ${APP_ID}
+---
+- launchApp:
+    clearState: true
+# Portfolio is the first tab: the app opens there.
+- extendedWaitUntil:
+    visible:
+      id: 'portfolio-screen'
+    timeout: 120000
+- tapOn:
+    id: 'tab-market'
+- extendedWaitUntil:
+    visible:
+      id: 'instrument-row-CAPX'
+    timeout: 120000
+- tapOn:
+    id: 'instrument-row-CAPX'
+- extendedWaitUntil:
+    visible:
+      id: 'order-sheet'
+    timeout: 15000
+- tapOn:
+    id: 'order-type-LIMIT'
+- tapOn:
+    id: 'order-price'
+- inputText: '40'
+# The footer (total + submit) is pinned above the keyboard: dismiss it to reach the fields below.
+- tapOn:
+    id: 'order-title'
+- tapOn:
+    id: 'order-mode-amount'
+- tapOn:
+    id: 'order-amount'
+- inputText: '1000'
+- takeScreenshot: limit-amount-keyboard
+# The title scrolled off the top to keep the amount field above the keyboard.
+- swipe:
+    start: 50%, 30%
+    end: 50%, 70%
+- tapOn:
+    id: 'order-title'
+- takeScreenshot: limit-buy-form
+- tapOn:
+    id: 'order-side-SELL'
+- assertVisible:
+    id: 'order-form-error'
+- takeScreenshot: limit-sell-error
+- tapOn:
+    id: 'order-side-BUY'
+- tapOn:
+    id: 'order-submit'
+- extendedWaitUntil:
+    visible:
+      id: 'order-result'
+    timeout: 30000
+- takeScreenshot: limit-result
