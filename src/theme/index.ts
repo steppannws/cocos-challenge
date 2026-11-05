@@ -21,6 +21,8 @@ export const colors = {
   heroTop: '#0A2462',
   heroBottom: '#1F5FE0',
   textOnHero: '#FFFFFF',
+  // The mint point of the brand mark (app icon, splash). Brighter than `gain` so it reads on navy.
+  brandAccent: '#4ADE80',
   overlay: 'rgba(11, 30, 69, 0.5)',
   transparent: 'transparent',
 } as const;

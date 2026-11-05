@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+  <!-- Brand mark: a bold C for Cocos and a mint point where the price breaks out.
+       AnimatedSplash draws this same geometry with react-native-svg; ic_launcher_foreground.xml mirrors it. -->
+  <path d="M82 37 A36 36 0 1 0 82 87" fill="none" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round"/>
+  <circle cx="97" cy="24" r="10" fill="#4ADE80"/>
+</svg>

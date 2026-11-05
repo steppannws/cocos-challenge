@@ -9,6 +9,11 @@ appId: ${APP_ID}
     visible:
       id: 'portfolio-screen'
     timeout: 120000
+# The splash blocks taps until its animation ends (about 2 s after the first render).
+- extendedWaitUntil:
+    notVisible:
+      id: 'animated-splash'
+    timeout: 15000
 - tapOn:
     id: 'tab-market'
 - extendedWaitUntil:

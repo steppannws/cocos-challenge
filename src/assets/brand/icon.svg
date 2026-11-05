@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Full-bleed square: iOS and the Android adaptive mask round the corners. Gradient = theme heroTop → heroBottom. -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0A2462"/>
+      <stop offset="1" stop-color="#1F5FE0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <g transform="translate(0 0) scale(8.5333)">
+    <path d="M82 37 A36 36 0 1 0 82 87" fill="none" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round"/>
+    <circle cx="97" cy="24" r="10" fill="#4ADE80"/>
+  </g>
+</svg>

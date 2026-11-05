@@ -6,4 +6,13 @@
         <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
     </style>
 
+    <!-- Native splash (react-native-bootsplash). MainActivity switches to AppTheme once React renders. -->
+    <style name="BootTheme" parent="Theme.BootSplash">
+        <item name="bootSplashBackground">@color/bootsplash_background</item>
+        <item name="bootSplashLogo">@drawable/bootsplash_logo</item>
+        <item name="postBootSplashTheme">@style/AppTheme</item>
+        <!-- Navy background: light status bar icons even in light mode. -->
+        <item name="darkContentBarsStyle">false</item>
+    </style>
+
 </resources>
