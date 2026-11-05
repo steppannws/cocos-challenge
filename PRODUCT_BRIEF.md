@@ -1,5 +1,7 @@
 # Cocos Challenge
 
+Versión en español: [`PRODUCT_BRIEF.es.md`](PRODUCT_BRIEF.es.md).
+
 A retail broker app for the Cocos Capital React Native challenge: browse instruments, search by ticker, see the portfolio and send BUY/SELL orders against the challenge's dummy API.
 
 ## Users and main jobs

@@ -1,5 +1,7 @@
 # AGENTS.md
 
+Versión en español: [`AGENTS.es.md`](AGENTS.es.md).
+
 Guidance for AI agents and humans working in this repo. Single source of truth: other agent configs point here. Product context: `PRODUCT_BRIEF.md`. Why each library: `docs/decisions.md`.
 
 ## Core rule
@@ -111,3 +113,4 @@ Naming: PascalCase for components and screens, camelCase for everything else (`u
 - `docs/decisions.md`: every library and why. Update it when you add or replace one.
 - `docs/offline.md`: what works offline and why orders do not queue.
 - `docs/production-checklist.md`: before any store submission.
+- Each doc has a Spanish twin next to it with the `.es.md` suffix. Edit the English file first, then update the twin.
