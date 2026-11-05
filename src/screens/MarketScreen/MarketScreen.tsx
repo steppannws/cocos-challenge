@@ -1,7 +1,15 @@
 import { useNavigation } from '@react-navigation/native';
 import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, Pressable, RefreshControl, ScrollView, TextInput, View } from 'react-native';
+import {
+  FlatList,
+  Keyboard,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  TextInput,
+  View,
+} from 'react-native';
 import { Icon } from '@/components/Icon';
 import { QueryStateView } from '@/components/QueryStateView';
 import { Screen } from '@/components/Screen';
@@ -25,8 +33,12 @@ export function MarketScreen() {
   const { refreshing, onRefresh } = useRefresh(market.refetch);
 
   const openOrder = useCallback(
-    (instrument: Instrument) =>
-      navigation.navigate('OrderSheet', { instrumentId: instrument.id, ticker: instrument.ticker }),
+    (instrument: Instrument) => {
+      // iOS hands focus back to the search field when the modal closes, and the keyboard then
+      // covers the tab bar. Blur it before opening the sheet.
+      Keyboard.dismiss();
+      navigation.navigate('OrderSheet', { instrumentId: instrument.id, ticker: instrument.ticker });
+    },
     [navigation],
   );
 
